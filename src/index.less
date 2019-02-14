@@ -1,0 +1,56 @@
+/*
+全局样式，不要轻易编写全局样式
+*/
+
+html, body, #root {
+    height: 100%;
+}
+
+body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.ant-notification {
+    z-index: 9999;
+}
+
+.ant-message {
+    z-index: 9999;
+}
+
+.ant-menu-submenu-popup {
+    z-index: 9999;
+}
+
+.ant-modal {
+    padding-bottom: 84px !important;
+}
+
+.just-print {
+    display: none !important;
+}
+
+@media print {
+    body {
+        padding: 0 !important;
+        background: none;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .just-print {
+        display: block !important;
+    }
+
+    .ant-message {
+        display: none !important;
+    }
+
+    .ant-modal-mask {
+        display: none !important;
+    }
+}

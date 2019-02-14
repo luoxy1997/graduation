@@ -1,0 +1,423 @@
+<!--
+支付结果页
+creat by zhangyifei 2017-11-07
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- QQ应用模式 -->
+    <meta name="x5-page-mode" content="app">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: PingFangSC-Medium;
+        }
+
+        .result-page .result-info {
+            text-align: center;
+            margin-top: 70px;
+        }
+
+        .result-page .result-info .result-img {
+            vertical-align: bottom;
+            display: inline-block;
+            width: 88px;
+            height: 88px;
+        }
+
+        .result-page .result-info .result-text {
+            font-size: 36px;
+            line-height: 88px;
+            margin-left: 24px;
+            display: inline-block;
+        }
+
+        .result-page .result-info .result-text.success {
+            color: #ABCD03;
+        }
+
+        .result-page .result-info .result-text.fail {
+            color: #E94E4C;
+        }
+
+        .result-page .pay-info {
+            text-align: center;
+            margin-top: 86px;
+            color: #4A4A4A;
+            letter-spacing: 0;
+        }
+
+        .result-page .pay-info .merchant-name {
+            font-size: 28px;
+            line-height: 40px;
+            font-family: PingFangSC-Regular;
+        }
+
+        .result-page .pay-info .pay-money {
+            font-size: 60px;
+            line-height: 84px;
+            margin-top: 20px;
+        }
+
+        .result-page .btn-wrapper {
+            text-align: center;
+            margin-top: 98px;
+        }
+
+        .result-page .btn-wrapper .operate-btn {
+            font-size: 32px;
+            width: 440px;
+            border: none;
+            height: 88px;
+            border-radius: 12px;
+            font-family: PingFangSC-Regular;
+            outline: none;
+        }
+
+        .result-page .btn-wrapper .operate-btn.fail {
+            background: #219FDB;
+            color: #FFFFFF;
+        }
+
+        .result-page .btn-wrapper .operate-btn.success {
+            background-color: #FFFFFF;
+            border: 2px solid #219FDB;
+            color: #219FDB;
+        }
+
+        .result-page .ad {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .result-page .ad .ad-img {
+            height: 250px;
+            width: 100%;
+        }
+    </style>
+</head>
+<script>
+    // 调用适配
+    setScreenSize()
+
+    // 适配
+    function setScreenSize() {
+        var clientWidth = document.documentElement.clientWidth;
+        window.wid = clientWidth
+        localStorage.setItem('wid', clientWidth)
+        var scale = clientWidth / 750
+        var meta = document.getElementsByTagName('meta')[1]
+        meta.content = 'width=device-width, initial-scale=' + scale + ', minimum-scale=' + scale + ', maximum-scale=' + scale + ', user-scalable=no'
+    }
+
+    // 神策配置
+    (function (para) {
+        window['sensorsDataAnalytic201505'] = para.name;
+        window[para.name] = {
+            para: para
+        };
+    })({
+        name: 'sa',
+        server_url: 'https://sc.suixingpay.com/sa?project=sytApp'
+    });
+</script>
+<body>
+<div class="result-page">
+    <div class="result">
+        <div class="result-info">
+        </div>
+        <div class="pay-info">
+            <p class="merchant-name"></p>
+            <p class="pay-money"></p>
+        </div>
+    </div>
+    <div class="btn-wrapper">
+    </div>
+    <div class="ad">
+        <img class="ad-img" src="" alt="">
+    </div>
+</div>
+</body>
+<script src="https://static.sensorsdata.cn/sdk/1.10.1/sensorsdata.min.js"></script>
+<script>
+    if (!sa.track) {
+        var script = document.createElement('script');
+        script.src = "../../../static/js/sensorsdata.min.js";
+        document.body.appendChild(script);
+    }
+</script>
+<script>
+    window.onload = function () {
+
+        //设置神策用户ID
+        // setUserId();
+
+        // 调用适配
+        setScreenSize()
+
+        // 获取所需参数
+        var code = getQueryString('code') || getQueryString('ord_no') || '--'
+        var status = getQueryString('status')
+        var money = getQueryString('totalFee') / 100 || getQueryString('amount') / 100 || localStorage.getItem('money')
+        var href = localStorage.getItem('href')
+        var isDynamic = window.sessionStorage.getItem('isDynamicPay') === '1'
+        var openId = getQueryString('openId') || '';
+        var tranuuid = getQueryString('tranuuid') || '';
+
+        // 获取dom元素
+        var adWrap = document.getElementsByClassName('ad')[0]
+        var ad = document.querySelector('.ad img');
+        var backBtn = document.getElementsByClassName('btn')[0];
+        var resultInfo = document.getElementsByClassName('result-info')[0];
+        var merchantName = document.getElementsByClassName('merchant-name')[0];
+        var payMoney = document.getElementsByClassName('pay-money')[0];
+        var btnWrapper = document.getElementsByClassName('btn-wrapper')[0];
+
+        //神策登录改为openId
+        loginSa();
+
+        changeTitle('支付结果');
+
+        // 判断状态 s 成功
+        if (status === 's' || status === '1') {
+            // 神策埋点
+            var payType = getPayType();
+            sa.track && sa.track('OpenPaySuccessPage', {payType: payType});
+            // 如果是动态码支付，不显示金额
+            window.sessionStorage.removeItem('isDynamicPay');
+            // 设置dom
+            setDom(true);
+            // 调用广告
+            getAD()
+        } else {
+            // 设置dom
+            setDom(false)
+        }
+
+        //设置商户名和金额
+        merchantName.innerText = localStorage.getItem('mecDisNm');
+        !isDynamic && (payMoney.innerText = ('￥' + money));
+
+        //设置页面
+        function setDom(isSuccess) {
+            var imgSrc = isSuccess ? '../../../static/img/icon_success_nor@3x.png' : '../../../static/img/icon_fail_nor@3x.png';
+            var className = isSuccess ? 'success' : 'fail';
+            var resultText = isSuccess ? '交易成功' : '交易失败';
+            var btnText = isSuccess ? '完成' : '返回重新付款';
+            //设置商户信息
+            var htmlInfo =
+                '<div class="result-info">' +
+                '<img class="result-img" src="' + imgSrc + '"/>' +
+                '<div class="result-text ' + className + '">' + resultText + '</div>' +
+                '</div>';
+            resultInfo.innerHTML = htmlInfo;
+            //设置返回按钮
+            var btn = '<button class="operate-btn ' + className + '">' + btnText + '</button>';
+            // qq 关闭不了 不显示完成按钮
+            if (getPayType() === 'QQPay' && isSuccess) return;
+            btnWrapper.innerHTML = btn
+            //交易成功时关闭当前窗口,失败跳转回支付页面
+            isSuccess ? closeWindow() : backPay();
+        }
+
+        // 后台请求，拉取广告
+        function getAD() {
+            // 测试
+            var urlDev = 'https://pubacc.vbillbank.com/prodAD/prod';
+            // 生产
+            var urlPro = 'https://ffp.vbillbank.com/api/prodAD/prod';
+
+            ajax('GET', urlPro, null, function (res) {
+                if (res && res.code === '0000') {
+                    var imgUrl = res.data.imgUrl
+                    var actionUrl = res.data.prodUrl
+                    // 替换跳转URL中的参数
+                    if (actionUrl) {
+                        actionUrl = actionUrl.replace(/\$\{tranSerialNum\}/g, tranuuid);
+                        actionUrl = actionUrl.replace(/\$\{wxOpenId\}/g, openId);
+                    }
+                    if (imgUrl) {
+                        adWrap.style.display = 'block'
+                        ad.src = 'data:image/png;base64,' + imgUrl
+                        ad.onclick = function () {
+                            if (sa.track) {
+                                sa.track('ViewPayAd', {}, function () {
+                                    actionUrl && location.replace(actionUrl)
+                                });
+                            } else {
+                                actionUrl && location.replace(actionUrl)
+                            }
+                        }
+                    }
+                }
+            }, function (err) {
+                console.log(err)
+            }, true)
+        }
+
+        //获取用户ID
+        function setUserId() {
+            var uuid = localStorage.getItem('uuid');
+            ajax('POST', '/staticPolymer/merc?uuid=' + uuid, {}, function (res) {
+                var userId = res.data && res.data.usrId;
+                sa.login && userId && sa.login(userId);
+            }, function (err) {
+                console.log(err)
+            }, false);
+        }
+
+        //神策登录
+        function loginSa() {
+            sa.login && openId && sa.login(openId);
+        }
+
+        // 自定义ajax  测试地址 http://172.16.136.63:8080/crsapp/
+        function ajax(type, url, data, success, error, isCors) {
+            var request = new XMLHttpRequest();
+            var requestUrl;
+            //跨域时不带前缀，不转发请求
+            var prefix = isCors ? '' : '/api/';
+            var sign = url.indexOf('?') !== -1 ? '&' : '?';
+            // fresh 防止chrome内核浏览器ajax请求相同url，使用缓存问题
+            requestUrl = prefix + url + sign + 'fresh=' + Date.now()
+
+            request.open(type, requestUrl, true)
+
+            request.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    if (this.status >= 200 && this.status < 400) {
+                        // Success
+                        var data = JSON.parse(this.responseText);
+                        success(data)
+                    } else {
+                        // Error
+                        var err = this.responseText;
+                        error(err)
+                    }
+                }
+            }
+
+            if (type === 'POST') {
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
+                request.send(data)
+            } else {
+                request.send()
+                request = null
+            }
+        }
+
+        // 适配
+        function setScreenSize() {
+            var clientWidth = window.wid || localStorage.getItem('wid')
+            var scale = clientWidth / 750
+            var meta = document.getElementsByTagName('meta')[1]
+            meta.content = 'width=device-width, initial-scale=' + scale + ', minimum-scale=' + scale + ', maximum-scale=' + scale + ', user-scalable=no'
+        }
+
+        // 动态修改页面title
+        function changeTitle(title) {
+            document.title = title
+            var iframe = document.createElement('iframe');
+            iframe.style.cssText = 'display: none; width: 0; height: 0;';
+            iframe.src = '../static/avatar.png';
+            var listener = function () {
+                setTimeout(function () {
+                    iframe.removeEventListener('load', listener);
+                    setTimeout(function () {
+                        document.body.removeChild(iframe);
+                    }, 0);
+                }, 0);
+            };
+            iframe.addEventListener('load', listener);
+            document.body.appendChild(iframe);
+        }
+
+        // 自定义querystring方法
+        function getQueryString(name) {
+            var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return unescape(r[2]);
+            }
+            return null;
+        }
+
+        // 判断支付类型
+        function getPayType() {
+            const userAgent = navigator.userAgent
+            if (userAgent.indexOf('Alipay') !== -1 || userAgent.indexOf('AlipayClient') !== -1) return 'Alipay'
+            if (userAgent.indexOf('MicroMessenger') !== -1) return 'WxPay'
+            if (userAgent.indexOf('QQBrowser') !== -1 || userAgent.indexOf('QB') !== -1) return 'QQPay'
+            return ''
+        }
+
+        // 返回重新付款
+        function backPay() {
+            document.querySelector('.operate-btn').addEventListener('click', function () {
+                window.location = href;
+            });
+        }
+
+        // 关闭当前窗口
+        function closeWindow() {
+            var payType = getPayType();
+            if (payType === 'Alipay') return aliPayClose();
+            if (payType === 'WxPay') return wxPayClose();
+            // qq目前不能关闭
+            // if(payType === 'QQPay') return qqPayClose();
+        }
+
+        function aliPayClose() {
+            aliPayJsReady(function () {
+                document.querySelector('.operate-btn').addEventListener('click', function () {
+                    AlipayJSBridge.call('exitApp');
+                });
+            })
+        }
+
+        function wxPayClose() {
+            wxPayJsReady(function () {
+                document.querySelector('.operate-btn').addEventListener('click', function () {
+                    WeixinJSBridge.invoke('closeWindow', {}, function (res) {
+                    });
+                });
+            })
+        }
+
+        function qqPayClose() {
+            document.querySelector('.operate-btn').addEventListener('click', function () {
+                mqq && mqq.invoke("ui", "closeWebViews");
+            });
+        }
+
+        function aliPayJsReady(callback) {
+            // 如果jsbridge已经注入则直接调用
+            if (window.AlipayJSBridge) {
+                callback && callback();
+            } else {
+                // 如果没有注入则监听注入的事件
+                document.addEventListener('AlipayJSBridgeReady', callback, false);
+            }
+        }
+
+        function wxPayJsReady(callback) {
+            if (typeof WeixinJSBridge == "object" && typeof WeixinJSBridge.invoke == "function") {
+                callback();
+            } else {
+                if (document.addEventListener) {
+                    document.addEventListener("WeixinJSBridgeReady", callback, false);
+                } else if (document.attachEvent) {
+                    document.attachEvent("WeixinJSBridgeReady", callback);
+                    document.attachEvent("onWeixinJSBridgeReady", callback);
+                }
+            }
+        }
+    }
+</script>
+<!-- <script src="https://pub.idqqimg.com/qqmobile/qqapi.js?_bid=152"></script> -->
+</html>
