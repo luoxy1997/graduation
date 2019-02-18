@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import {Form, Input, Button, Table, Divider, Modal} from 'antd';
 import PageContent from '../../layouts/page-content';
-import ImportModal from './ImportModal';
-import AddSchema from './AddSchema';
-import SqlDetails from './SqlDetails';
 import './style.less';
-export const PAGE_ROUTE = '/schemaSys';
+import ImportTable from './ImportTable';
+import InitialData from "./InitialData";
+export const PAGE_ROUTE = '/tableSys';
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 @Form.create()
@@ -22,22 +21,12 @@ export default class SchemaSys extends Component {
     //导入库
     importModal = (value) =>{
         this.setState({importVisible: true});
-
+        console.log(value,'value')
     };
 
     //新增或修改
-    addModal = (record,value) => {
-        this.setState({addVisible: true});
-        //修改
-        if(record){
-           this.setState({record: record});
-           console.log(record,'修改');
-           console.log(value,'修改');
-        }else{
-            this.setState({record: null});
-            console.log(record,'新增');
-            console.log(value,'新增');
-        }
+    addTable = () => {
+        this.props.history.push('/addTable')
 
     };
 
@@ -57,7 +46,6 @@ export default class SchemaSys extends Component {
     };
 
     render() {
-        const {importVisible, addVisible, sqlVisible} = this.state;
         const columns = [{
             title: '应用',
             dataIndex: 'name',
@@ -67,10 +55,15 @@ export default class SchemaSys extends Component {
             dataIndex: 'age',
             key: 'age',
         }, {
-            title: '备注说明',
+            title: 'table',
             dataIndex: 'address',
             key: 'address',
-        }, {
+        },  {
+            title: '备注说明',
+            dataIndex: 'address',
+            key: 'address1',
+        },
+            {
             title: '操作',
             render: (record) => {
                 return (
@@ -79,7 +72,9 @@ export default class SchemaSys extends Component {
                         <Divider type="vertical" />
                         <a onClick={() => {this.deleteItem(record)}}>删除</a>
                         <Divider type="vertical" />
-                        <a onClick={() => {this.sqlModal(record)}}>查看SQL</a>
+                        <a onClick={() => {this.sqlModal(record)}}>查看修改SQL</a>
+                        <Divider type="vertical" />
+                        <a onClick={() => {this.sqlModal(record)}}>修改日志</a>
                     </span>)
             }
         },];
@@ -124,6 +119,14 @@ export default class SchemaSys extends Component {
                         />
 
                     </FormItem>
+                    <FormItem
+                        label="table"
+                    >
+                        <Input
+                            placeholder="请输入表名"
+                        />
+
+                    </FormItem>
                     <FormItem>
                         <Button
                             type="primary"
@@ -136,7 +139,7 @@ export default class SchemaSys extends Component {
                         <Button
                             type="primary" ghost
                             htmlType="submit"
-                            onClick={() => this.addModal(null)}
+                            onClick={() => this.addTable(null)}
                         >
                             添加
                         </Button>
@@ -151,26 +154,16 @@ export default class SchemaSys extends Component {
                         </Button>
                     </FormItem>
                 </Form>
-                <Table columns={columns} dataSource={data} styleName='table' />
-                <ImportModal
-                    visible= {importVisible}
-                    onCancel= {()=>{this.setState({importVisible:false})}}
+                <Table columns={columns} dataSource={data} styleName="table" />
+                <ImportTable
+                    visible={this.state.importVisible}
                     onOK={this.importModal}
-
+                    onCancel={()=>{this.setState({importVisible: false})}}
                 />
-                <AddSchema
-                    visible= {addVisible}
-                    onCancel= {()=>{this.setState({addVisible:false})}}
-                    title={this.state.record ? "修改" : "添加"}
-                    onOK={this.addModal}
-                    record={this.state.record}
-
+                <InitialData
+                    visible={this.state.initalVisble}
                 />
-                <SqlDetails
-                    visible= {sqlVisible}
-                    onCancel= {()=>{this.setState({sqlVisible:false})}}
 
-                />
             </PageContent>
         );
     }

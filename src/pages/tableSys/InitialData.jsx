@@ -1,18 +1,17 @@
 import React, {Component} from 'react';
-import {Modal, Row, Col, Form, Input, Button} from 'antd';
+import {Modal, Row, Form, Input, Button} from 'antd';
 
 const FormItem = Form.Item;
-const {TextArea} = Input;
 @Form.create()
-export default class AddSchema extends Component {
+export default class InitialData extends Component {
     state = {visible: false};
 
     handleOk = () => {
         const {onOK} = this.props;
         this.props.form.validateFields((err,value) => {
-           if(!err){
-               onOK(null,value);
-           }
+            if(!err){
+                onOK(null,value);
+            }
         })
     };
 
@@ -36,7 +35,7 @@ export default class AddSchema extends Component {
             <Modal
                 mask
                 width="500px"
-                title={this.props.title}
+                title="初始化数据"
                 visible={this.props.visible}
                 onOk={this.handleOk}
                 onCancel={this.props.onCancel}
@@ -50,7 +49,7 @@ export default class AddSchema extends Component {
             >
                 <Form>
                     <Row>
-                        <FormItem label="应用" {...formItemLayout}>
+                        <FormItem label="ID" {...formItemLayout}>
                             {getFieldDecorator('url',{
                                 initialValue: record && record.name
                             })(
@@ -60,7 +59,7 @@ export default class AddSchema extends Component {
                         </FormItem>
                     </Row>
                     <Row>
-                        <FormItem label="schema" {...formItemLayout}>
+                        <FormItem label="Name" {...formItemLayout}>
                             {getFieldDecorator('schema',{
                                 initialValue: record && record.age
                             })(
@@ -69,16 +68,15 @@ export default class AddSchema extends Component {
                         </FormItem>
                     </Row>
                     <Row>
-                        <Col span={24}>
-                            <FormItem label="备注" {...formItemLayout}>
-                                {getFieldDecorator('desc',{
-                                    initialValue: record && record.address
-                                })(
-                                    <TextArea rows={4}/>
-                                )}
-                            </FormItem>
-                        </Col>
+                        <FormItem label="Sex" {...formItemLayout}>
+                            {getFieldDecorator('schema',{
+                                initialValue: record && record.age
+                            })(
+                                <Input/>
+                            )}
+                        </FormItem>
                     </Row>
+
 
 
                 </Form>

@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Modal, Row, Select, Form, Input, Button} from 'antd';
-
 const FormItem = Form.Item;
 const Option = Select.Option;
 const { TextArea } = Input;
@@ -18,7 +17,7 @@ export default class SqlDetails extends Component {
     };
     handleChange = (value)  =>{
         console.log(`selected ${value}`);
-    }
+    };
 
 
     render() {
