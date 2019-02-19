@@ -1,23 +1,23 @@
 import React, {Component} from 'react';
-import {Col, Form, Input, Row, Tabs, Select, Icon} from 'antd';
+import {Col, Form, Input, Row, Tabs, Button, Icon} from 'antd';
 import './style.less';
 import PageContent from '../../layouts/page-content';
 import ColItem from './colSys/ColItem';
 import IndexItem from './IndexSys/IndexItem';
+import InitialItem from "./InitialSys/InitialItem";
+
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 
-export const PAGE_ROUTE = '/addTable';
+export const PAGE_ROUTE = '/modifyTable';
 @Form.create()
 
-export default class AddTable extends Component {
+export default class ModifyTable extends Component {
 
     callback = (key) => {
         console.log(key);
     };
-
 
 
     render() {
@@ -37,28 +37,15 @@ export default class AddTable extends Component {
             <PageContent>
                 <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20 }}>
                     <div style={{float: 'left', background: '#1890ff', height:28, width: 5, marginRight: 5}}></div>
-                    <Icon type="edit" style={{marginRight: 5}}/>
-                    新增表配置
+                    <Icon type="setting" style={{marginRight: 5}}/>
+                    修改表配置
                 </div>
                 <Form layout="inline" style={{paddingBottom: 24}}>
                     <Row>
                         <Col span={6}>
-                            <FormItem  label="schema" {...formItemLayout}>
-                                {getFieldDecorator('user',{
-                                    initialValue:'mysql'
-                                })(
-                                    <Select style={{width: 180}}  onChange={this.handleChange}>
-                                        <Option value="Oracle">user-userservice</Option>
-                                        <Option value="mysql">log-userservice</Option>
-                                    </Select>
-                                )}
-
-                            </FormItem>
-                        </Col>
-                        <Col span={6}>
                             <FormItem label="表名" {...formItemLayout}>
-                                {getFieldDecorator('use1r',{
-                                    initialValue:'mysql'
+                                {getFieldDecorator('use1r', {
+                                    initialValue: 'mysql'
                                 })(
                                     <Input
                                         placeholder="请输入schema"
@@ -71,24 +58,31 @@ export default class AddTable extends Component {
                             <FormItem
                                 label="备注说明"
                             >
-                                {getFieldDecorator('us2er',{
-                                    initialValue:'mysql'
+                                {getFieldDecorator('us2er', {
+                                    initialValue: 'mysql'
                                 })(
                                     <Input
-                                        placeholder="请输入表名"
+                                        placeholder="请输入备注说明"
                                     />
                                 )}
                             </FormItem>
                         </Col>
+                        <Col style={{marginTop: 4}}>
+                        <Button type="primary" ghost>保存</Button>
+                        </Col>
                     </Row>
+
                 </Form>
 
-                <Tabs onChange={this.callback} type="card" >
+                <Tabs onChange={this.callback} type="card">
                     <TabPane tab="列管理" key="1">
                         <ColItem/>
                     </TabPane>
                     <TabPane tab="索引管理" key="2">
                         <IndexItem/>
+                    </TabPane>
+                    <TabPane tab="初始化数据管理" key="3">
+                        <InitialItem/>
                     </TabPane>
                 </Tabs>
             </PageContent>

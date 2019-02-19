@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, Table, Divider, Modal} from 'antd';
+import {Form, Input, Button, Table, Divider, Modal, Row, Col, Popconfirm, message} from 'antd';
 import PageContent from '../../layouts/page-content';
 import './style.less';
 import ImportTable from './ImportTable';
-import InitialData from "./InitialData";
+import ChangeLog from "./ChangeLog";
+import SqlDetails from '../schema/SqlDetails'
+
+
 export const PAGE_ROUTE = '/tableSys';
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
@@ -11,20 +14,29 @@ const confirm = Modal.confirm;
 
 
 export default class SchemaSys extends Component {
-    state={
+    state = {
         importVisible: false,   //导入数据框
         addVisible: false,  //新增框
         sqlVisible: false,  //sql详情框
         record: null,
     };
 
-    //导入库
-    importModal = (value) =>{
-        this.setState({importVisible: true});
-        console.log(value,'value')
+    //气泡确认框确认
+    confirm = (e) => {
+        message.success('删除成功');
     };
 
-    //新增或修改
+    //导入库
+    importModal = (value) => {
+        this.setState({importVisible: true});
+        console.log(value, 'value')
+    };
+    //修改
+    modifyTable = () => {
+        this.props.history.push('/modifyTable')
+    }
+
+    //新增
     addTable = () => {
         this.props.history.push('/addTable')
 
@@ -45,6 +57,14 @@ export default class SchemaSys extends Component {
         this.setState({sqlVisible: true});
     };
 
+    //修改日志
+    sqlDetails = (record) => {
+        const id = record.name;
+        this.props.history.push({ pathname: '/modifyLog', state: { id } });
+        this.setState({changeLogVisible: true});
+    };
+
+
     render() {
         const columns = [{
             title: '应用',
@@ -58,26 +78,34 @@ export default class SchemaSys extends Component {
             title: 'table',
             dataIndex: 'address',
             key: 'address',
-        },  {
+        }, {
             title: '备注说明',
             dataIndex: 'address',
             key: 'address1',
         },
             {
-            title: '操作',
-            render: (record) => {
-                return (
-                    <span>
-                        <a onClick={() => {this.addModal(record)}}>修改</a>
-                        <Divider type="vertical" />
-                        <a onClick={() => {this.deleteItem(record)}}>删除</a>
-                        <Divider type="vertical" />
-                        <a onClick={() => {this.sqlModal(record)}}>查看修改SQL</a>
-                        <Divider type="vertical" />
-                        <a onClick={() => {this.sqlModal(record)}}>修改日志</a>
+                title: '操作',
+                render: (record) => {
+                    return (
+                        <span>
+                        <a onClick={() => {
+                            this.modifyTable(record)
+                        }}>修改</a>
+                        <Divider type="vertical"/>
+                        <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
+                            <a>删除</a>
+                        </Popconfirm>
+                        <Divider type="vertical"/>
+                        <a onClick={() => {
+                            this.sqlModal(record)
+                        }}>查看SQL</a>
+                        <Divider type="vertical"/>
+                        <a onClick={() => {
+                            this.sqlDetails(record)
+                        }}>修改日志</a>
                     </span>)
-            }
-        },];
+                }
+            },];
 
         const data = [{
             key: '1',
@@ -98,70 +126,100 @@ export default class SchemaSys extends Component {
             address: 'Sidney No. 1 Lake Park',
             tags: ['cool', 'teacher'],
         }];
+        const formItemLayout = {
+            labelCol: {
+                xs: {span: 24},
+                sm: {span: 8},
+            },
+            wrapperCol: {
+                xs: {span: 24},
+                sm: {span: 16},
+            },
+        };
         return (
             <PageContent>
                 <Form layout="inline"
-                      style={{padding: '24px', background: '#fbfbfb', border: '1px solid #d9d9d9', borderRadius: '6px'}}
+                      style={{padding: 24, background: '#fbfbfb', border: '1px solid #d9d9d9', borderRadius: '6px'}}
                 >
-                    <FormItem
-                        label="应用"
-                    >
-                        <Input
-                            placeholder="请输入应用名称"
-                        />
+                    <Row>
+                        <Col span={6}>
+                            <FormItem label="应用" {...formItemLayout}>
 
-                    </FormItem>
-                    <FormItem
-                        label="schema"
-                    >
-                        <Input
-                            placeholder="请输入schema"
-                        />
+                                <Input
+                                    placeholder="请输入应用名称"
+                                />
 
-                    </FormItem>
-                    <FormItem
-                        label="table"
-                    >
-                        <Input
-                            placeholder="请输入表名"
-                        />
+                            </FormItem>
+                        </Col>
+                        <Col span={6}>
+                            <FormItem label="schema" {...formItemLayout}>
+                                <Input
+                                    placeholder="请输入schema"
+                                />
 
-                    </FormItem>
-                    <FormItem>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                        >
-                            查询
-                        </Button>
-                    </FormItem>
-                    <FormItem>
-                        <Button
-                            type="primary" ghost
-                            htmlType="submit"
-                            onClick={() => this.addTable(null)}
-                        >
-                            添加
-                        </Button>
-                    </FormItem>
-                    <FormItem>
-                        <Button
-                            type="dashed"
-                            htmlType="submit"
-                            onClick={this.importModal}
-                        >
-                            导入
-                        </Button>
-                    </FormItem>
+                            </FormItem>
+                        </Col>
+                        <Col span={6}>
+                            <FormItem
+                                label="table"
+                            >
+                                <Input
+                                    placeholder="请输入表名"
+                                />
+
+                            </FormItem>
+                        </Col>
+                        <Col span={6}>
+                            <FormItem>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                >
+                                    查询
+                                </Button>
+                            </FormItem>
+                            <FormItem>
+                                <Button
+                                    type="primary" ghost
+                                    htmlType="submit"
+                                    onClick={() => this.addTable(null)}
+                                >
+                                    添加
+                                </Button>
+                            </FormItem>
+                            <FormItem>
+                                <Button
+                                    type="dashed"
+                                    htmlType="submit"
+                                    onClick={this.importModal}
+                                >
+                                    导入
+                                </Button>
+                            </FormItem>
+                        </Col>
+                    </Row>
                 </Form>
-                <Table columns={columns} dataSource={data} styleName="table" />
+
+                <Table columns={columns} dataSource={data} styleName="table"/>
                 <ImportTable
                     visible={this.state.importVisible}
                     onOK={this.importModal}
-                    onCancel={()=>{this.setState({importVisible: false})}}
+                    onCancel={() => {
+                        this.setState({importVisible: false})
+                    }}
                 />
-                <InitialData
-                    visible={this.state.initalVisble}
+
+                <ChangeLog
+                    visible={this.state.changeLogVisible}
+                    onCancel={() => {
+                        this.setState({changeLogVisible: false})
+                    }}
+                />
+                <SqlDetails
+                    visible={this.state.sqlVisible}
+                    onCancel={() => {
+                        this.setState({sqlVisible: false})
+                    }}
                 />
 
             </PageContent>

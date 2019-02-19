@@ -42,7 +42,7 @@ export default class ImportTable extends Component {
                 xs: {span: 24},
                 sm: {span: 18},
             },
-        }
+        };
 
         return (
             <Modal

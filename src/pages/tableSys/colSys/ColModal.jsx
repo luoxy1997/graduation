@@ -3,7 +3,7 @@ import {Modal, Row, Col, Form, Input, Button, Radio} from 'antd';
 
 const FormItem = Form.Item;
 @Form.create()
-export default class ColSys extends Component {
+export default class ColModal extends Component {
     state = {visible: false};
 
     handleOk = () => {
@@ -17,6 +17,8 @@ export default class ColSys extends Component {
 
 
     render() {
+        const {record,title} = this.props;
+
         const {getFieldDecorator} = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -33,7 +35,7 @@ export default class ColSys extends Component {
             <Modal
                 mask
                 width="700px"
-                title="列管理"
+                title={title}
                 visible={this.props.visible}
                 onOk={this.handleOk}
                 onCancel={this.props.onCancel}
@@ -47,7 +49,9 @@ export default class ColSys extends Component {
                     <Row>
                         <Col span={12}>
                             <FormItem label="列名" {...formItemLayout}>
-                                {getFieldDecorator('drivername')(
+                                {getFieldDecorator('driverwwname',{
+                                    initialValue: record && record.id
+                                })(
                                     <Input/>
                                 )}
 
@@ -55,7 +59,9 @@ export default class ColSys extends Component {
                         </Col>
                         <Col span={12}>
                             <FormItem label="类型" {...formItemLayout}>
-                                {getFieldDecorator('drivername')(
+                                {getFieldDecorator('drivername',{
+                                    initialValue: record && record.age
+                                })(
                                     <Input/>
                                 )}
                             </FormItem>
@@ -64,14 +70,18 @@ export default class ColSys extends Component {
                     <Row>
                         <Col span={12}>
                             <FormItem label="长度" {...formItemLayout}>
-                                {getFieldDecorator('userame')(
+                                {getFieldDecorator('userame',{
+                                    initialValue: record && record.address
+                                })(
                                     <Input/>
                                 )}
                             </FormItem>
                         </Col>
                         <Col span={12}>
                             <FormItem label="默认值" {...formItemLayout}>
-                                {getFieldDecorator('password')(
+                                {getFieldDecorator('password',{
+                                    initialValue: record && record.id
+                                })(
                                     <Input/>
                                 )}
                             </FormItem>
@@ -81,7 +91,7 @@ export default class ColSys extends Component {
                         <Col span={12}>
                             <FormItem label="Not Null" {...formItemLayout}>
                                 {getFieldDecorator('sysname',{
-                                    initialValue:"b"
+                                    initialValue: "a"
                                 })(
                                     <Radio.Group buttonStyle="solid">
                                         <Radio.Button value="a">是</Radio.Button>

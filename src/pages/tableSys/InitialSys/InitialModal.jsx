@@ -3,22 +3,22 @@ import {Modal, Row, Form, Input, Button} from 'antd';
 
 const FormItem = Form.Item;
 @Form.create()
-export default class InitialData extends Component {
+export default class InitialModal extends Component {
     state = {visible: false};
 
     handleOk = () => {
         const {onOK} = this.props;
-        this.props.form.validateFields((err,value) => {
-            if(!err){
-                onOK(null,value);
+        this.props.form.validateFields((err, value) => {
+            if (!err) {
+                onOK(null, value);
             }
         })
     };
 
 
     render() {
+        const {record, title} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const {record} = this.props;
         const formItemLayout = {
             labelCol: {
                 xs: {span: 24},
@@ -35,7 +35,7 @@ export default class InitialData extends Component {
             <Modal
                 mask
                 width="500px"
-                title="初始化数据"
+                title={title}
                 visible={this.props.visible}
                 onOk={this.handleOk}
                 onCancel={this.props.onCancel}
@@ -50,7 +50,7 @@ export default class InitialData extends Component {
                 <Form>
                     <Row>
                         <FormItem label="ID" {...formItemLayout}>
-                            {getFieldDecorator('url',{
+                            {getFieldDecorator('url', {
                                 initialValue: record && record.name
                             })(
                                 <Input/>
@@ -60,7 +60,7 @@ export default class InitialData extends Component {
                     </Row>
                     <Row>
                         <FormItem label="Name" {...formItemLayout}>
-                            {getFieldDecorator('schema',{
+                            {getFieldDecorator('schema', {
                                 initialValue: record && record.age
                             })(
                                 <Input/>
@@ -69,14 +69,13 @@ export default class InitialData extends Component {
                     </Row>
                     <Row>
                         <FormItem label="Sex" {...formItemLayout}>
-                            {getFieldDecorator('schema',{
+                            {getFieldDecorator('schema', {
                                 initialValue: record && record.age
                             })(
                                 <Input/>
                             )}
                         </FormItem>
                     </Row>
-
 
 
                 </Form>

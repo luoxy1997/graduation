@@ -5,7 +5,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const {TextArea} = Input;
 @Form.create()
-export default class ModifyIndex extends Component {
+export default class IndexModal extends Component {
     state = {
         visible: false,
         data : [{
@@ -41,6 +41,7 @@ export default class ModifyIndex extends Component {
 
 
     render() {
+        const {record, title} = this.props;
         const {getFieldDecorator} = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -89,7 +90,7 @@ export default class ModifyIndex extends Component {
             <Modal
                 mask
                 width="500px"
-                title="添加修改索引"
+                title={title}
                 visible={this.props.visible}
                 onOk={this.handleOk}
                 onCancel={this.props.onCancel}
@@ -102,7 +103,9 @@ export default class ModifyIndex extends Component {
                 <Form>
                     <Row>
                         <FormItem label="索引名称" {...formItemLayout}>
-                            {getFieldDecorator('drivername')(
+                            {getFieldDecorator('drivername',{
+                                initialValue: record && record.age
+                            })(
                                 <Input/>
                             )}
 
@@ -112,7 +115,7 @@ export default class ModifyIndex extends Component {
 
                         <FormItem label="索引类型" {...formItemLayout}>
                             {getFieldDecorator('drivername', {
-                                initialValue: 'jack'
+                                initialValue: record && record.age
                             })(
                                 <div>
                                     <Select onChange={this.handleChange}>
@@ -146,7 +149,9 @@ export default class ModifyIndex extends Component {
                     <Row>
                         <Col span={24}>
                             <FormItem label="备注" {...formItemLayout}>
-                                {getFieldDecorator('desc')(
+                                {getFieldDecorator('desc',{
+                                    initialValue: record && record.id
+                                })(
                                     <TextArea rows={4}/>
                                 )}
                             </FormItem>

@@ -1,13 +1,22 @@
 import React, {Component} from 'react';
-import {Modal, Form, Button, Table} from 'antd';
+import { Form, Button, Table, Icon, } from 'antd';
+import PageContent from '../../layouts/page-content';
 import SqlDesc from './SqlDesc';
 
+export const PAGE_ROUTE = '/modifyLog';
+
+
 @Form.create()
-export default class ChangeLog extends Component {
+export default class ModifyLog extends Component {
     state = {
         visible: false,
         sqlDescVisible: false,
     };
+
+    componentWillMount() {
+        const id = this.props.location.state.id;
+        console.log(id);
+    }
 
     handleOk = () => {
         const {onOK} = this.props;
@@ -26,22 +35,22 @@ export default class ChangeLog extends Component {
     render() {
         const columns = [
             {
-                title: 'ID', width: 90, dataIndex: 'name', key: 'name', fixed: 'left',
+                title: 'ID', dataIndex: 'name', key: 'name', fixed: 'left',
             },
             {
-                title: '表', width: 70, dataIndex: 'age', key: 'age',
+                title: '表', dataIndex: 'age', key: 'age',
             },
             {
-                title: '修改人', width: 80, dataIndex: 'address1', key: '1',
+                title: '修改人', dataIndex: 'address1', key: '1',
             },
             {
-                title: '修改集', width: 200, dataIndex: 'address', key: '2',
+                title: '修改集', dataIndex: 'address', key: '2',
             },
             {
-                title: '回滚', width: 100, dataIndex: 'address2', key: '3',
+                title: '回滚', dataIndex: 'address2', key: '3',
             },
             {
-                title: '日期', width: 100, dataIndex: 'address3', key: '4',
+                title: '日期', dataIndex: 'address3', key: '4',
             },
             {
                 title: '操作',
@@ -69,33 +78,29 @@ export default class ChangeLog extends Component {
             onChange: (selectedRowKeys, selectedRows) => {
                 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
             }
-        };
+        }
 
         return (
-            <div>
-                <Modal
-                    mask
-                    width="1000px"
-                    title="修改日志"
-                    visible={this.props.visible}
-                    onOk={this.handleOk}
-                    onCancel={this.props.onCancel}
-                    footer={[
-                        <Button key="submit" type="primary" onClick={this.sqlDetails}>
-                            查看选中SQL
-                        </Button>,
-                    ]}
-                >
-                    <Table rowSelection={rowSelection} columns={columns} dataSource={data} scroll={{x: 1500,}}/>
-                </Modal>
+            <PageContent>
+
+                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20}}>
+                    <div style={{float: 'left', background: '#1890ff', height: 28, width: 5, marginRight: 5}}></div>
+                    <Icon type="form" style={{marginRight: 5}}/>
+                    修改日志
+                </div>
+                <Table rowSelection={rowSelection} columns={columns} dataSource={data}/>
+                <div style={{margin: '0 auto', textAlign: 'center'}}>
+                    <Button key="submit" type="primary"  onClick={this.sqlDetails}>
+                        查看选中SQL
+                    </Button>
+                </div>
                 <SqlDesc
                     visible={this.state.sqlDescVisible}
                     onCancel={() => {
                         this.setState({sqlDescVisible: false})
                     }}
-
                 />
-            </div>
+            </PageContent>
         );
     }
 }

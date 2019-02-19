@@ -27,6 +27,7 @@ export default class SchemaSys extends Component {
 
     //新增或修改
     addModal = (record,value) => {
+        console.log(record,'cccccc');
         this.setState({addVisible: true});
         //修改
         if(record){
