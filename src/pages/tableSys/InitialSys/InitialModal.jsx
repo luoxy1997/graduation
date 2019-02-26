@@ -1,34 +1,95 @@
 import React, {Component} from 'react';
-import {Modal, Row, Form, Input, Button} from 'antd';
+import {Modal, Form, Checkbox, Button, Table, Input, Select} from 'antd';
 
 const FormItem = Form.Item;
+const {Option} = Select;
+const SEPARATOR = '--';
+
 @Form.create()
 export default class InitialModal extends Component {
-    state = {visible: false};
+    state = {
+        visible: false,
+
+    };
+
+    columns = [
+        {
+            title: '列名',
+            dataIndex: 'name',
+            render: text => <a>{text}</a>,
+            align: 'center'
+        },
+        {
+            title: '是否是函数',
+            render: (record) => {
+                const {getFieldDecorator} = this.props.form;
+                return (
+                    <FormItem>
+                        {getFieldDecorator(`type${SEPARATOR}${record.name}`, {
+                            initialValue: false,
+                            onChange: this.onChange,
+                        })(
+                            <Checkbox/>
+                        )}
+                    </FormItem>
+                )
+            },
+            align: 'center'
+        },
+        {
+            title: '值',
+            render: (record) => {
+                const {getFieldDecorator} = this.props.form;
+                const type = this.props.form.getFieldValue(`type${SEPARATOR}${record.name}`);
+
+                if (type) {
+                    return (
+                        <FormItem>
+                            {getFieldDecorator(`value${SEPARATOR}${record.name}`, {
+                                initialValue: '1',
+                            })(
+                                <Select style={{width: '100%'}}>
+                                    <Option value="1">111</Option>
+                                    <Option value="2">222</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    );
+                }
+                return (
+                    <FormItem>
+                        {getFieldDecorator(`value${SEPARATOR}${record.name}`, {
+                            initialValue: '',
+                        })(
+                            <Input/>
+                        )}
+                    </FormItem>
+                )
+            },
+            align: 'center'
+        }];
 
     handleOk = () => {
-        const {onOK} = this.props;
         this.props.form.validateFields((err, value) => {
             if (!err) {
-                onOK(null, value);
+                console.log(value, 'value')
             }
         })
     };
 
-
     render() {
-        const {record, title} = this.props;
+        const {title} = this.props;
         const {getFieldDecorator} = this.props.form;
-        const formItemLayout = {
-            labelCol: {
-                xs: {span: 24},
-                sm: {span: 6},
-            },
-            wrapperCol: {
-                xs: {span: 24},
-                sm: {span: 16}
-            },
-        };
+        const data = [{
+            key: '1',
+            name: 'id',
+        }, {
+            key: '2',
+            name: 'name',
+        }, {
+            key: '3',
+            name: 'sex',
+        }];
 
 
         return (
@@ -47,38 +108,13 @@ export default class InitialModal extends Component {
                     <Button key="back" onClick={this.props.onCancel}>取消</Button>,
                 ]}
             >
-                <Form>
-                    <Row>
-                        <FormItem label="ID" {...formItemLayout}>
-                            {getFieldDecorator('url', {
-                                initialValue: record && record.name
-                            })(
-                                <Input/>
-                            )}
-
-                        </FormItem>
-                    </Row>
-                    <Row>
-                        <FormItem label="Name" {...formItemLayout}>
-                            {getFieldDecorator('schema', {
-                                initialValue: record && record.age
-                            })(
-                                <Input/>
-                            )}
-                        </FormItem>
-                    </Row>
-                    <Row>
-                        <FormItem label="Sex" {...formItemLayout}>
-                            {getFieldDecorator('schema', {
-                                initialValue: record && record.age
-                            })(
-                                <Input/>
-                            )}
-                        </FormItem>
-                    </Row>
-
-
-                </Form>
+                <Table
+                    columns={this.columns}
+                    dataSource={data}
+                    bordered
+                    pagination={false}
+                    size="middle"
+                />
             </Modal>
         );
     }

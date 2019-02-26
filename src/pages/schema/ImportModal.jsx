@@ -57,6 +57,24 @@ export default class ImportModal extends Component {
                 <Form>
                     <Row>
                         <Col span={12}>
+                            <FormItem label="schema名称" {...formItemLayout}>
+                                {getFieldDecorator('schema')(
+                                    <Input/>
+                                )}
+
+                            </FormItem>
+                        </Col>
+                        <Col span={12}>
+                            <FormItem label="应用名" {...formItemLayout}>
+                                {getFieldDecorator('sysname')(
+                                    <Input/>
+                                )}
+                            </FormItem>
+                        </Col>
+
+                    </Row>
+                    <Row>
+                        <Col span={12}>
                             <FormItem label="url" {...formItemLayout}>
                                 {getFieldDecorator('url')(
                                     <Input/>
@@ -88,15 +106,7 @@ export default class ImportModal extends Component {
                             </FormItem>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col span={12}>
-                            <FormItem label="应用名" {...formItemLayout}>
-                                {getFieldDecorator('sysname')(
-                                    <Input/>
-                                )}
-                            </FormItem>
-                        </Col>
-                    </Row>
+
                     <Row>
                         <Col span={24}>
                             <FormItem label="备注" {...formDescLayout}>

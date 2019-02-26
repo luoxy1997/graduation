@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, Row, Col, Form, Input, Button, Select} from 'antd';
+import {Modal, Row, Col, Form, Input, Button, Select, Checkbox} from 'antd';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -7,6 +7,11 @@ const {TextArea} = Input;
 @Form.create()
 export default class ImportTable extends Component {
     state = {visible: false};
+
+
+    onChange = (e) =>  {
+        console.log(`checked = ${e.target.checked}`);
+    };
 
     handleOk = () => {
         const {onOK} = this.props;
@@ -18,7 +23,7 @@ export default class ImportTable extends Component {
     };
     handleChange = (value) => {
         console.log(`selected ${value}`);
-    }
+    };
 
 
     render() {
@@ -119,6 +124,16 @@ export default class ImportTable extends Component {
                                 )}
                             </FormItem>
                         </Col>
+                    </Row>
+                    <Row>
+                        <Col style={{margin: '0 auto'}}>
+                            <FormItem style={{textAlign:'center'}}>
+                                {getFieldDecorator('yes')(
+                                    <Checkbox onChange={this.onChange}>是否导入数据</Checkbox>
+                                )}
+                            </FormItem>
+                        </Col>
+
                     </Row>
 
 

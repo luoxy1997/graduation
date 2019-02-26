@@ -9,13 +9,10 @@ export default class IndexItem extends Component {
         visible: false,
         record: null,
     };
-
     //气泡确认框确认
     confirm = (e) => {
         message.success('删除成功');
     };
-
-
     addIndex = (record) => {
         const id = record.id;
         this.setState({
@@ -27,8 +24,6 @@ export default class IndexItem extends Component {
             this.setState({record: null});
         }
     };
-
-
 
     render() {
         const columns = [{

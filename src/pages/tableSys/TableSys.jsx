@@ -1,15 +1,13 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, Table, Divider, Modal, Row, Col, Popconfirm, message} from 'antd';
+import {Form, Input, Button, Table, Divider, Row, Col, Popconfirm, message} from 'antd';
 import PageContent from '../../layouts/page-content';
 import './style.less';
 import ImportTable from './ImportTable';
-import ChangeLog from "./ChangeLog";
 import SqlDetails from '../schema/SqlDetails'
 
 
 export const PAGE_ROUTE = '/tableSys';
 const FormItem = Form.Item;
-const confirm = Modal.confirm;
 @Form.create()
 
 
@@ -34,7 +32,7 @@ export default class SchemaSys extends Component {
     //修改
     modifyTable = () => {
         this.props.history.push('/modifyTable')
-    }
+    };
 
     //新增
     addTable = () => {
@@ -42,15 +40,6 @@ export default class SchemaSys extends Component {
 
     };
 
-    //删除
-    deleteItem = (record) => {
-        confirm({
-            title: '确认删除？',
-            onOk: () => {
-                console.log(record);
-            }
-        });
-    };
 
     //查看sql
     sqlModal = (record) => {
@@ -209,12 +198,7 @@ export default class SchemaSys extends Component {
                     }}
                 />
 
-                <ChangeLog
-                    visible={this.state.changeLogVisible}
-                    onCancel={() => {
-                        this.setState({changeLogVisible: false})
-                    }}
-                />
+
                 <SqlDetails
                     visible={this.state.sqlVisible}
                     onCancel={() => {
