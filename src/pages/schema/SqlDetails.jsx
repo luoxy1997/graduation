@@ -1,39 +1,26 @@
 import React, {Component} from 'react';
-import {Modal, Row, Select, Form, } from 'antd';
+import {Modal, Row, Select, Form,} from 'antd';
+import {ajaxHoc} from '../../commons/ajax';
 import sqlFormatter from "sql-formatter";   //sql格式化插件
 import SyntaxHighlighter from 'react-syntax-highlighter';   //语法高亮插件
 import {dracula} from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import {ajaxHoc} from '../../commons/ajax';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 @ajaxHoc()
-
 @Form.create()
 export default class SqlDetails extends Component {
     state = {
         visible: false,
-        sql: '请选择上方数据库类型',
+        sql: '',
     };
 
 
-    handleOk = () => {
-        const {onOK} = this.props;
-        this.props.form.validateFields((err, value) => {
-            if (!err) {
-                onOK(value);
-            }
-        })
-    };
-
-    //选择数据库类型，格式化SQL语句
-    handleChange = (value) => {
-
-        const dbName = value;
-        const tableId = this.props.record.id;
-        this.props.ajax.get(`/tableinfo/sql/${dbName}/${tableId}`)
+    handleChange = (dbName) => {
+        const {id} = this.props;
+        this.props.ajax.get(`/schemainfo/sql/${dbName}/${id}`)
             .then(res => {
-                this.setState({sql: sqlFormatter.format(res)})
+                this.setState({sql: sqlFormatter.format(res)});
             })
     };
 
@@ -55,18 +42,16 @@ export default class SqlDetails extends Component {
                 width="700px"
                 title="查看SQL"
                 visible={this.props.visible}
-                onOk={this.handleOk}
                 onCancel={this.props.onCancel}
                 footer={null}
             >
                 <Form>
                     <Row>
                         <FormItem label="数据库类型" {...formItemLayout}>
-                            {getFieldDecorator('url',{
-                                onChange:this.handleChange,
-
+                            {getFieldDecorator('dbName', {
+                                onChange: this.handleChange,
                             })(
-                                <Select placeholder='请选择数据库类型'>
+                                <Select placeholder="请选择数据库">
                                     <Option value="oracle">oracle</Option>
                                     <Option value="mysql">mysql</Option>
                                 </Select>
@@ -76,7 +61,7 @@ export default class SqlDetails extends Component {
                     </Row>
                     <Row>
                         <div>
-                            <SyntaxHighlighter language="" style={dracula} showLineNumbers >
+                            <SyntaxHighlighter language="" style={dracula} showLineNumbers>
                                 {this.state.sql}
                             </SyntaxHighlighter>
                         </div>
