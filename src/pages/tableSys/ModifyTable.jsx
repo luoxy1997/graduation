@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {Col, Form, Input, Row, Tabs, Button, Icon} from 'antd';
 import './style.less';
 import PageContent from '../../layouts/page-content';
-import ColItem from './colSys/ColItem';
-import IndexItem from './IndexSys/IndexItem';
+import ColItem from './addTable/ColItem';
+import IndexItem from './addTable/IndexItem';
 import InitialItem from "./InitialSys/InitialItem";
 
 const TabPane = Tabs.TabPane;

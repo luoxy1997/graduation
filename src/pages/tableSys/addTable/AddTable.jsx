@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {Col, Form, Input, Row, Tabs, Select, Icon, Button} from 'antd';
-import './style.less';
-import PageContent from '../../layouts/page-content';
-import ColItem from './colSys/ColItem';
-import IndexItem from './IndexSys/IndexItem';
+import '../style.less';
+import PageContent from '../../../layouts/page-content';
+import ColItem from './ColItem';
+import IndexItem from './IndexItem';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const Option = Select.Option;
