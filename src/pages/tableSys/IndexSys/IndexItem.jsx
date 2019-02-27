@@ -1,13 +1,28 @@
 import React, {Component} from 'react';
-import {Button, Col, Divider, Row, Table, Popconfirm, message} from 'antd';
+import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input} from 'antd';
 import '../style.less';
-import IndexModal from "./IndexModal";
 
+const FormItem = Form.Item;
+const {Option} = Select;
+const {TextArea} = Input;
+@Form.create()
 
 export default class IndexItem extends Component {
     state = {
         visible: false,
         record: null,
+        selectedRows: [],        //选中列信息的行
+        tableConfig: [{         //添加索引配置列信息
+            key: '0',
+            name: 'id',
+        }, {
+            key: '1',
+            name: 'name',
+        }, {
+            key: '2',
+            name: 'sex',
+        }],
+        indexData: [],           //索引表格信息
     };
     //气泡确认框确认
     confirm = (e) => {
@@ -25,19 +40,67 @@ export default class IndexItem extends Component {
         }
     };
 
+    handleOk = () => {
+        this.props.form.validateFields((err, value) => {
+            const {selectedRowKeys} = this.state;
+            if (!err) {
+                const tableData = selectedRowKeys && selectedRowKeys.length && selectedRowKeys.map(item => {
+                    return {
+                        name: this.state.tableConfig[item].name,
+                        order: value.order[item],
+                        number: value.number[item],
+                    }
+                });
+                delete value.order;
+                delete value.number;
+                const result = {...value, columns: tableData};    //添加索引信息后数据
+                const indexData = this.state.indexData;
+                indexData.push(result);
+                this.setState({
+                    indexData,
+                    visible: false,
+                });
+
+            }
+        });
+    };
+
+
     render() {
+        const {getFieldDecorator} = this.props.form;
+        const {record} = this.state;
+        const formItemLayout = {
+            labelCol: {
+                xs: {span: 24},
+                sm: {span: 6},
+            },
+            wrapperCol: {
+                xs: {span: 24},
+                sm: {span: 17},
+            },
+        };
+        const rowSelection = {
+            onChange: (selectedRowKeys, selectedRows) => {
+                this.setState({
+                    selectedRowKeys,
+                    selectedRows
+                });
+
+            }
+        };
+
         const columns = [{
             title: '索引名称',
-            dataIndex: 'id',
+            dataIndex: 'name',
             key: 'name',
         }, {
             title: '索引类型',
-            dataIndex: 'agddde',
-            key: 'age',
+            dataIndex: 'type',
+            key: 'type',
         }, {
             title: '列',
-            dataIndex: 'age',
-            key: 'ageddd',
+            dataIndex: 'row',
+            key: 'row',
         }, {
             title: '操作',
             render: (record) => {
@@ -56,46 +119,122 @@ export default class IndexItem extends Component {
             }
         },];
 
-        const data = [{
-            key: '1',
-            id: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
+
+        const columns2 = [{
+            align: 'center',
+            title: '列',
+            dataIndex: 'name',
+            render: text => <a>{text}</a>,
         }, {
-            key: '2',
-            id: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
+            align: 'center',
+            title: '顺序',
+            render: (text, record) =>
+                <FormItem>
+                    {getFieldDecorator(`number[${record.key}]`, {
+                        initialValue: record && record.number,
+                        onChange: this.handleChange
+                    })(
+                        <Input
+                            style={{width: 100}}
+                            onChange={e => {
+                                record.money = e.target.value;
+                            }}
+                        />
+                    )}
+
+                </FormItem>
         }, {
-            key: '3',
-            id: 'Joe Black',
-            age: 32,
-            address: 'Sidney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
+            align: 'center',
+            title: '排序',
+            render: (text, record) =>
+                <FormItem>
+                    {getFieldDecorator(`order[${record.key}]`, {
+                        initialValue: record && record.order,
+                        onChange: this.handleChange
+                    })(
+                        <Select style={{width: 120}} placeholder='选择排序方式'>
+                            <Option value="ASC">ASC</Option>
+                            <Option value="DESC">DESC</Option>
+                        </Select>
+                    )}
+
+                </FormItem>
         }];
+
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
                     <Button type="primary" onClick={this.addIndex}>+ 添加索引</Button>
                 </div>
-                <Table dataSource={data} columns={columns} styleName="table"/>
-                <IndexModal
+                <Table dataSource={this.state.indexData} columns={columns} styleName="table"/>
+                <Modal
+                    mask
+                    width="500px"
+                    title={record ? '修改' : '添加'}
                     visible={this.state.visible}
                     onCancel={() => {
                         this.setState({visible: false})
                     }}
-                    record={this.state.record}
-                    title={this.state.record ? "修改索引" : "添加索引"}
-                />
-                <Row>
-                    <Col span={10}></Col>
-                    <Col span={2}><Button type="primary">保存</Button></Col>
-                    <Col span={1}></Col>
-                    <Col span={1}><Button>取消</Button></Col>
-                </Row>
+                    footer={[
+                        <Button key="submit" type="primary" onClick={this.handleOk}>
+                            保存
+                        </Button>,
+                    ]}
+                >
+                    <Form>
+                        <Row>
+                            <FormItem label="索引名称" {...formItemLayout}>
+                                {getFieldDecorator('name', {
+                                    initialValue: record && record.name
+                                })(
+                                    <Input/>
+                                )}
+
+                            </FormItem>
+                        </Row>
+                        <Row>
+                            <FormItem label="索引类型" {...formItemLayout}>
+                                {getFieldDecorator('type', {
+                                    initialValue: record && record.type,
+                                    onChange: this.handleChange
+                                })(
+                                    <Select>
+                                        <Option value="PRIMARY KEY">PRIMARY KEY</Option>
+                                        <Option value="INDEX">INDEX</Option>
+                                        <Option value="INDEX">INDEX</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+                        </Row>
+                        <Row>
+                            <FormItem>
+                                <Table
+                                    columns={columns2}
+                                    dataSource={this.state.tableConfig}
+                                    bordered
+                                    pagination={false}
+                                    rowSelection={rowSelection}
+                                />
+                            </FormItem>
+                        </Row>
+                        <Row>
+                            <Col span={24}>
+                                <FormItem label="备注" {...formItemLayout}>
+                                    {getFieldDecorator('remark', {
+                                        initialValue: record && record.remark
+                                    })(
+                                        <TextArea rows={4}/>
+                                    )}
+                                </FormItem>
+                            </Col>
+                        </Row>
+
+
+                    </Form>
+                </Modal>
             </div>
+
+
         );
     }
 }

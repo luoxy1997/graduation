@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, Table, Divider, Row, Col, Popconfirm, message} from 'antd';
+import {Form, Input, Button, Table, Divider, Row, Col, Popconfirm, Pagination} from 'antd';
 import PageContent from '../../layouts/page-content';
 import './style.less';
 import ImportTable from './ImportTable';
-import SqlDetails from '../schema/SqlDetails'
+import SqlDetails from '../schema/SqlDetails';
+import notify from './notify';
 
 
 export const PAGE_ROUTE = '/tableSys';
@@ -17,11 +18,24 @@ export default class SchemaSys extends Component {
         addVisible: false,  //新增框
         sqlVisible: false,  //sql详情框
         record: null,
+        pageNum: 1,
+        pageSize: 10,
+        data: null,
+
     };
 
-    //气泡确认框确认
-    confirm = (e) => {
-        message.success('删除成功');
+    componentWillMount() {
+        this.search();
+    }
+
+    //气泡确认框确认删除
+    confirm = (record) => {
+        const {id} = record;
+        this.props.ajax.del(`/tableinfo/${id}`)
+            .then(() => {
+                    notify('success', '删除成功');
+                }
+            );
     };
 
     //导入库
@@ -43,34 +57,55 @@ export default class SchemaSys extends Component {
 
     //查看sql
     sqlModal = (record) => {
-        this.setState({sqlVisible: true});
+        this.setState({sqlVisible: true, record});
     };
 
     //修改日志
     sqlDetails = (record) => {
         const id = record.name;
-        this.props.history.push({ pathname: '/modifyLog', state: { id } });
+        this.props.history.push({pathname: '/modifyLog', state: {id}});
         this.setState({changeLogVisible: true});
+    };
+
+    //默认获取数据
+    search = (args = {}) => {
+        const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
+        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`)
+            .then(res => {
+                const data = res.content.map(item => {
+                    return {schemaName: item.schemaInfo.name, appName: item.schemaInfo.appName, ...item}
+                });
+                this.setState({
+                    data,
+                    pageNum: res.number,
+                    pageSize: res.size,
+                });
+            })
+
+    };
+    // 默认获取数据分页
+    changePage = (pageNum) => {
+        //塞数据
+        this.setState({pageNum: pageNum});
+        //塞数据后立即执行函数并使用数据时，会产生异步，此时我们获取不到最新的值，所以我们这个时候传参
+        this.search({pageNum: pageNum, pageSize: this.state.pageSize});
     };
 
 
     render() {
+        const {getFieldDecorator} = this.props.form;
         const columns = [{
-            title: '应用',
+            title: '应用名称',
+            dataIndex: 'appName',
+        }, {
+            title: 'schema名称',
+            dataIndex: 'schemaName',
+        }, {
+            title: 'table名称',
             dataIndex: 'name',
-            key: 'name',
-        }, {
-            title: 'schema',
-            dataIndex: 'age',
-            key: 'age',
-        }, {
-            title: 'table',
-            dataIndex: 'address',
-            key: 'address',
         }, {
             title: '备注说明',
-            dataIndex: 'address',
-            key: 'address1',
+            dataIndex: 'remark',
         },
             {
                 title: '操作',
@@ -81,7 +116,7 @@ export default class SchemaSys extends Component {
                             this.modifyTable(record)
                         }}>修改</a>
                         <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
+                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.confirm(record)} onCancel={this.cancel} okText="确定" cancelText="取消">
                             <a>删除</a>
                         </Popconfirm>
                         <Divider type="vertical"/>
@@ -96,25 +131,6 @@ export default class SchemaSys extends Component {
                 }
             },];
 
-        const data = [{
-            key: '1',
-            name: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
-        }, {
-            key: '2',
-            name: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
-        }, {
-            key: '3',
-            name: 'Joe Black',
-            age: 32,
-            address: 'Sidney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
-        }];
         const formItemLayout = {
             labelCol: {
                 xs: {span: 24},
@@ -133,28 +149,31 @@ export default class SchemaSys extends Component {
                     <Row>
                         <Col span={6}>
                             <FormItem label="应用" {...formItemLayout}>
-
-                                <Input
-                                    placeholder="请输入应用名称"
-                                />
-
+                                {getFieldDecorator('appName')(
+                                    <Input
+                                        placeholder="请输入schema"
+                                    />
+                                )}
                             </FormItem>
                         </Col>
                         <Col span={6}>
                             <FormItem label="schema" {...formItemLayout}>
-                                <Input
-                                    placeholder="请输入schema"
-                                />
-
+                                {getFieldDecorator('schemaName')(
+                                    <Input
+                                        placeholder="请输入schema"
+                                    />
+                                )}
                             </FormItem>
                         </Col>
                         <Col span={6}>
                             <FormItem
                                 label="table"
                             >
-                                <Input
-                                    placeholder="请输入表名"
-                                />
+                                {getFieldDecorator('schemaName')(
+                                    <Input
+                                        placeholder="请输入表名"
+                                    />
+                                )}
 
                             </FormItem>
                         </Col>
@@ -189,7 +208,14 @@ export default class SchemaSys extends Component {
                     </Row>
                 </Form>
 
-                <Table columns={columns} dataSource={data} styleName="table"/>
+                <Table columns={columns} dataSource={this.state.data} styleName="table" pagination={false}  rowKey={record => record.name}/>
+                <Pagination
+                    current={this.state.pageNum}//当前的页数
+                    pageSize={this.state.pageSize}//一页的条数
+                    onChange={this.changePage}//改变页数
+                    showQuickJumper//快速跳转
+                    style={{textAlign: 'center', marginTop: '20px'}}
+                />
                 <ImportTable
                     visible={this.state.importVisible}
                     onOK={this.importModal}
@@ -204,6 +230,8 @@ export default class SchemaSys extends Component {
                     onCancel={() => {
                         this.setState({sqlVisible: false})
                     }}
+                    record={this.state.record}
+
                 />
 
             </PageContent>

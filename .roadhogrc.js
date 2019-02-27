@@ -63,7 +63,10 @@ module.exports = {
         //     "target": "http://localhost:5000"
         // },
         "/api": {
-            "target": "http://localhost:3000"
+            "target": "http://172.16.42.219:8081",
+            "pathRewrite": {
+                '^/api': '',
+            }
         },
         // "/graphql": {
         //     "target": "http://localhost:4000"

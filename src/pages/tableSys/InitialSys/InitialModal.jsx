@@ -9,9 +9,7 @@ const SEPARATOR = '--';
 export default class InitialModal extends Component {
     state = {
         visible: false,
-
     };
-
     columns = [
         {
             title: '列名',
@@ -79,7 +77,6 @@ export default class InitialModal extends Component {
 
     render() {
         const {title} = this.props;
-        const {getFieldDecorator} = this.props.form;
         const data = [{
             key: '1',
             name: 'id',

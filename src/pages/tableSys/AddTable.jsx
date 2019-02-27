@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Col, Form, Input, Row, Tabs, Select, Icon} from 'antd';
+import {Col, Form, Input, Row, Tabs, Select, Icon, Button} from 'antd';
 import './style.less';
 import PageContent from '../../layouts/page-content';
 import ColItem from './colSys/ColItem';
@@ -91,6 +91,12 @@ export default class AddTable extends Component {
                         <IndexItem/>
                     </TabPane>
                 </Tabs>
+                <Row>
+                    <Col span={10}></Col>
+                    <Col span={2}><Button type="primary">保存</Button></Col>
+                    <Col span={1}></Col>
+                    <Col span={1}><Button>取消</Button></Col>
+                </Row>
             </PageContent>
         );
     }

@@ -53,7 +53,7 @@ export default class SchemaSys extends Component {
     };
 
     //查看sql
-    sqlModal = (record) => {
+    sqlModal = () => {
         this.setState({sqlVisible: true});
     };
 
@@ -170,7 +170,7 @@ export default class SchemaSys extends Component {
                 <SqlDetails
                     visible= {sqlVisible}
                     onCancel= {()=>{this.setState({sqlVisible:false})}}
-
+x2xw
                 />
             </PageContent>
         );
