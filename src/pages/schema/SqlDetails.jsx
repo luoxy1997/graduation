@@ -40,7 +40,7 @@ export default class SqlDetails extends Component {
             <Modal
                 mask
                 width="700px"
-                title="查看SQL"
+                title="查看SQL1"
                 visible={this.props.visible}
                 onCancel={this.props.onCancel}
                 footer={null}
