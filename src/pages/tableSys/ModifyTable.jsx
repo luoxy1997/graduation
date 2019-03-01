@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import {Col, Form, Input, Row, Tabs, Button, Icon} from 'antd';
 import './style.less';
 import PageContent from '../../layouts/page-content';
-import ColItem from './addTable/ColItem';
-import IndexItem from './addTable/IndexItem';
-import InitialItem from "./InitialSys/InitialItem";
+import ColItem from './editTable/ColItem';
+import IndexItem from './editTable/IndexItem';
+import InitialItem from "./editTable/InitialItem";
+
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -19,6 +20,27 @@ export default class ModifyTable extends Component {
         console.log(key);
     };
 
+  saveBtn = () => {
+      const successTip = '保存成功';
+      this.props.form.validateFields((err, values) => {
+          if (!err) {
+              this.props.ajax.put('/tableinfo', values, {successTip})
+                  .then(res => {
+                      console.log(res, "search.res");
+                      let name = '';
+                      let remark = '';
+                      let id = '';
+                      if (res) {
+                          name = res.name || '';
+                          remark = res.remark || '';
+                          id = res.remark || '';
+                      }
+                      this.setState({name, remark, id});
+                  })
+          }
+      });
+
+}
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -43,12 +65,18 @@ export default class ModifyTable extends Component {
                 <Form layout="inline" style={{paddingBottom: 24}}>
                     <Row>
                         <Col span={6}>
+                            {getFieldDecorator('id', {
+                                initialValue: this.props.location.state.id,
+                            })(
+                                <Input type="hidden"/>
+                            )}
+
                             <FormItem label="表名" {...formItemLayout}>
-                                {getFieldDecorator('use1r', {
-                                    initialValue: 'mysql'
+                                {getFieldDecorator('name', {
+                                    initialValue: this.props.location.state.name,
                                 })(
                                     <Input
-                                        placeholder="请输入schema"
+                                        placeholder="请输入表名"
                                     />
                                 )}
 
@@ -58,8 +86,9 @@ export default class ModifyTable extends Component {
                             <FormItem
                                 label="备注说明"
                             >
-                                {getFieldDecorator('us2er', {
-                                    initialValue: 'mysql'
+                                {getFieldDecorator('remark', {
+                                    initialValue: this.props.location.state.remark,
+
                                 })(
                                     <Input
                                         placeholder="请输入备注说明"
@@ -68,20 +97,22 @@ export default class ModifyTable extends Component {
                             </FormItem>
                         </Col>
                         <Col style={{marginTop: 4}}>
-                        <Button type="primary" ghost>保存</Button>
+                        <Button
+                            type="primary"
+                            onClick={this.saveBtn} >保存</Button>
                         </Col>
                     </Row>
 
                 </Form>
 
                 <Tabs onChange={this.callback} type="card">
-                    <TabPane tab="列管理" key="1">
-                        <ColItem/>
+                    <TabPane tab="列管理" key="1" >
+                        <ColItem tableId={this.props.location.state.id} />
                     </TabPane>
                     <TabPane tab="索引管理" key="2">
-                        <IndexItem/>
+                        <IndexItem tableId={this.props.location.state.id} />
                     </TabPane>
-                    <TabPane tab="初始化数据管理" key="3">
+                    <TabPane tab="初始化数据管理" key="3" tableId={this.props.location.state.id}>
                         <InitialItem/>
                     </TabPane>
                 </Tabs>

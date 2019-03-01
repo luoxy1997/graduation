@@ -44,8 +44,9 @@ export default class SchemaSys extends Component {
         console.log(value, 'value')
     };
     //修改
-    modifyTable = () => {
-        this.props.history.push('/modifyTable')
+    modifyTable = (record) => {
+        const {id,name,remark}= record;
+        this.props.history.push({ pathname:'/modifyTable',state:{id,name,remark} })
     };
 
     //新增

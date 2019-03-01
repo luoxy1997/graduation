@@ -12,9 +12,13 @@ const Option = Select.Option;
 export default class SqlDetails extends Component {
     state = {
         visible: false,
-        sql: '',
+        sql: this.props.sql,
     };
 
+    onCancel =() => {
+        this.props.onCancel();
+        this.setState({sql:""});
+}
 
     handleChange = (dbName) => {
         const {id} = this.props;
@@ -23,6 +27,8 @@ export default class SqlDetails extends Component {
                 this.setState({sql: sqlFormatter.format(res)});
             })
     };
+
+
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -42,7 +48,9 @@ export default class SqlDetails extends Component {
                 width="700px"
                 title="查看SQL3"
                 visible={this.props.visible}
-                onCancel={this.props.onCancel}
+                onCancel={this.onCancel}
+                // onCancel={this.handleCancel}
+                destroyOnClose={true}
                 footer={null}
             >
                 <Form>
