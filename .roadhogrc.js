@@ -64,6 +64,7 @@ module.exports = {
         // },
         "/api": {
             "target": "http://172.16.42.219:8081",
+            // "target": "http://172.16.155.23:8080/",
             "pathRewrite": {
                 '^/api': '',
             }

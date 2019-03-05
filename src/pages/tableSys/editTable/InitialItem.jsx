@@ -16,22 +16,48 @@ export default class InitialItem extends Component {
         dataSource: [],
         loading: false,
         record: null,
+        columns: [], //动态的columns
     };
     search = (args = {}) => {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
-        const tableId = {tableId: this.props.tableId};
-        this.props.ajax.get(`/init/{tableId}?pageNum=${pageNum}&pageSize=${pageSize}`, tableId)
+        const tableId = 159;
+        //查询出动态的列
+        //  TODO
+        this.props.ajax.get(`/columninfo?&&pageSize=9999`, {tableId: 159})
             .then(res => {
-                console.log(res, "search.res");
-                let total = 0;
-                let dataSource = [];
-                let pageNum = this.state.pageNum;
                 if (res) {
-                    total = res.totalElements || 0;
-                    dataSource = res.content || [];
-                    pageNum = res.number;
+                    const columns = res.content.map(item => {
+                            return {
+                                title: item.name,
+                                dataIndex: item.id
+                            }
+                        }
+                    );
+                    columns.push({
+                        title: '操作',
+                        render: (record) => {
+                            return (
+                                <span>
+                                    <a onClick={() => {this.addData(record)}}>修改</a>
+                                    <Divider type="vertical"/>
+                                    <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
+                                        <a>删除</a>
+                                    </Popconfirm>
+                                </span>)
+                        }
+
+                    });
+                    this.setState({
+                        columns,
+                    })
                 }
-                this.setState({total, dataSource, pageNum});
+            })
+            .finally(() => this.setState({loading: false}));
+        //查询出数据，构造成DataSource
+        this.props.ajax.get(`/init/${tableId}`)
+            .then(res => {
+                console.log(res,'res');
+                // const dataSource =
             })
             .finally(() => this.setState({loading: false}));
 
@@ -49,62 +75,34 @@ export default class InitialItem extends Component {
     componentWillMount() {
         this.search();
     }
+
     addData = (record = {}) => {
         this.setState({
             visible: true
         });
         const {id} = record;
-        if(id){
-            this.setState({record:record});
-        }else{
+        if (id) {
+            this.setState({record: record});
+        } else {
             this.setState({record: null,});
         }
     };
 
     render() {
-        const {visible,dataSource} = this.state;
-        const columns = [{
-            title: 'id',
-            dataIndex: 'name',
-            key: 'name',
-        }, {
-            title: 'name',
-            dataIndex: 'agddde',
-            key: 'age',
-        }, {
-            title: 'sex',
-            dataIndex: 'age',
-            key: 'ageddd',
-        }, {
-            title: '操作',
-            render: (record) => {
-                return (
-                    <span>
-                        <a onClick={() => {
-                            this.addData(record)
-                        }}>修改</a>
-                        <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm>
-                    </span>)
-            }
-        },];
-
-
+        const {visible, dataSource} = this.state;
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
                     <Button type="primary" onClick={this.addData}>+ 添加初始数据</Button>
                 </div>
-                <Table dataSource={dataSource} columns={columns} styleName="table"/>
+                <Table dataSource={dataSource} columns={this.state.columns} styleName="table"/>
                 <Pagination
                     current={this.state.pageNum}//当前的页数
                     total={this.state.total}//接受的总数
                     pageSize={this.state.pageSize}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
-                    style={{textAlign:'center', marginTop: '20px'}}
+                    style={{textAlign: 'center', marginTop: '20px'}}
                     showTotal={total => `共 ${total}条`}//共多少条
                 />
                 <InitialModal

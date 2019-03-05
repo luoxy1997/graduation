@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table,  Form,  Modal,Pagination} from 'antd';
+import {Button, Divider, Table, Form, Modal, Pagination} from 'antd';
 import '../style.less';
 import IndexEditModal from "./IndexEditModal";
 import {ajaxHoc} from "../../../commons/ajax";
+
 const confirm = Modal.confirm;
 
 @ajaxHoc()
@@ -17,21 +18,18 @@ export default class IndexItem extends Component {
         pageNum: 1,
         pageSize: 10,
         total: 0,
+        indexTableConfig: [],//索引管理动态列数据
     };
 
     search = (args = {}) => {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
         const tableId = {tableId: this.props.tableId};
-        this.props.ajax.get(`/indexinfo?pageNum=${pageNum}&pageSize=${pageSize}`,tableId)
+        this.props.ajax.get(`/indexinfo?pageNum=${pageNum}&pageSize=${pageSize}`, tableId)
             .then(res => {
-                console.log(res, "search.res");
                 let total = 0;
-                let dataSource = [];
                 let pageNum = this.state.pageNum;
                 if (res) {
-                    const data = res && res.content.length && res.content.map(item =>item.columnInfos);
-                    const colName = data.map(item=>item.map(n=>n.name ));
-                    const result = res.content; //[]
+                    const result = res.content;
                     result.forEach(item => {
                             const name = item.columnInfos.map(item => item.name).join(',');
                             item.colName = name;
@@ -39,7 +37,7 @@ export default class IndexItem extends Component {
                     );
                     total = res.totalElements || 0;
                     pageNum = res.number;
-                    this.setState({total, colName, dataSource:result, pageNum});
+                    this.setState({total, dataSource: result, pageNum});
                 }
 
             })
@@ -59,15 +57,39 @@ export default class IndexItem extends Component {
     }
 
     addIndex = (record) => {
+        const tableId = {tableId: this.props.tableId};
+        this.props.ajax.get(`/columninfo?&&pageSize=9999`, tableId)
+            .then(res => {
+                if (res) {
+                    const indexTableConfig = res.content.map(item => {
+                            return {
+                                key: item.id,
+                                name: item.name
+                            }
+                        }
+                    );
+                    this.setState({
+                        indexTableConfig,
+                    })
+                }
+            })
+            .finally(() => this.setState({loading: false}));
         const id = record.id;
         this.setState({
             visible: true,
         });
         if (id) {
+
             this.setState({record: record});
         } else {
             this.setState({record: null});
         }
+    };
+    onOk = () => {
+        this.setState({
+            visible: false
+        });
+        this.search();
     };
 
 
@@ -96,8 +118,8 @@ export default class IndexItem extends Component {
         });
     };
 
- handleDelete = (record) => {
-        const {name,id} = record;
+    handleDelete = (record) => {
+        const {name, id} = record;
         const successTip = `删除“${name}”成功！`;
         confirm({
             title: `您确定要删除“${name}”？`,
@@ -112,7 +134,7 @@ export default class IndexItem extends Component {
     };
 
     render() {
-        const {visible,dataSource} = this.state;
+        const {visible, dataSource} = this.state;
         const columns = [{
             title: '索引名称',
             dataIndex: 'name',
@@ -125,15 +147,26 @@ export default class IndexItem extends Component {
             title: '列',
             dataIndex: 'colName',
             key: 'colName',
+            render: text => {
+                const result = text.split(",");
+                const colName = result.map((item, index) => {
+                    return <div key={index}>{item}</div>
+                });
+                return colName;
+            }
 
         }, {
             title: '操作',
             render: (record) => {
                 return (
                     <span>
-                        <a onClick={() => {this.addIndex(record)}}>修改</a>
+                        <a onClick={() => {
+                            this.addIndex(record)
+                        }}>修改</a>
                         <Divider type="vertical"/>
-                        <a onClick={() => {this.handleDelete(record)}}>删除</a>
+                        <a onClick={() => {
+                            this.handleDelete(record)
+                        }}>删除</a>
                     </span>)
             }
         },];
@@ -156,7 +189,7 @@ export default class IndexItem extends Component {
                     pageSize={this.state.pageSize}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
-                    style={{textAlign:'center', marginTop: '20px'}}
+                    style={{textAlign: 'center', marginTop: '20px'}}
                     showTotal={total => `共 ${total}条`}//共多少条
                 />
                 <IndexEditModal
@@ -167,6 +200,8 @@ export default class IndexItem extends Component {
                     title={this.state.record ? "修改" : "添加"}
                     onOk={this.onOk}
                     record={this.state.record}
+                    dataSource={this.state.indexTableConfig}    //索引的列colums
+                    tableId={this.props.tableId}
                 >
                 </IndexEditModal>
             </div>

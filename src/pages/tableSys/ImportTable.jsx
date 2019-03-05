@@ -57,6 +57,7 @@ export default class ImportTable extends Component {
                 visible={this.props.visible}
                 onOk={this.handleOk}
                 onCancel={this.props.onCancel}
+                destroyOnClose
                 footer={[
                     <Button key="submit" type="primary" onClick={this.handleOk}>
                         确认导入

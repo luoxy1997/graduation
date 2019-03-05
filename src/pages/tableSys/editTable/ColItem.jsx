@@ -26,7 +26,6 @@ export default class ColItem extends Component {
         const tableId = {tableId: this.props.tableId};
         this.props.ajax.get(`/columninfo?pageNum=${pageNum}&pageSize=${pageSize}`, tableId)
             .then(res => {
-                console.log(res, "search.res");
                 let total = 0;
                 let dataSource = [];
                 let pageNum = this.state.pageNum;
@@ -56,7 +55,6 @@ export default class ColItem extends Component {
 
     //新增或修改
     addCol = (record) => {
-        console.log(record, "recordrecord")
         this.setState({colVisible: true});
         //修改
         if (record) {
@@ -69,7 +67,6 @@ export default class ColItem extends Component {
 
     handleDelete = (record) => {
         const {name, id} = record;
-        console.log(id, "id1111");
         const successTip = `删除“${name}”成功！`;
         confirm({
             title: `您确定要删除“${name}”？`,

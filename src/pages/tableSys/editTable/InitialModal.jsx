@@ -70,7 +70,6 @@ export default class InitialModal extends Component {
     handleOk = () => {
         this.props.form.validateFields((err, value) => {
             if (!err) {
-                console.log(value, 'value')
             }
         })
     };

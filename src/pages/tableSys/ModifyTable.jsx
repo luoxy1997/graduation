@@ -113,7 +113,7 @@ export default class ModifyTable extends Component {
                         <IndexItem tableId={this.props.location.state.id} />
                     </TabPane>
                     <TabPane tab="初始化数据管理" key="3" tableId={this.props.location.state.id}>
-                        <InitialItem/>
+                        <InitialItem tableId={this.props.location.state.id}/>
                     </TabPane>
                 </Tabs>
             </PageContent>

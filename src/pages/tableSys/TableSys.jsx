@@ -20,8 +20,7 @@ export default class SchemaSys extends Component {
         record: null,
         pageNum: 1,
         pageSize: 10,
-        data: null,
-
+        data:[],
     };
 
     componentWillMount() {
