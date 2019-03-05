@@ -9,70 +9,48 @@ export const PAGE_ROUTE = '/importDataList';
 export default class ImportDataList extends Component {
 
     state = {
-        dataSource: [],
         loading: false,
+        selectedRowKeys:[],
     };
-
-    search = () => {
-        const schemaId = this.props;
-        this.props.ajax
-            .post(`/tableinfo/${schemaId}`,{successTip:"导入成功"})
-            .then(() => this.setState({dataVislble:true}))
-            .finally(() => this.setState({loading: false}));
-    };
-
-    componentWillMount() {
-
-        this.search();
-    }
 
     handleOk = (e) => {
         e.preventDefault();
-        const {loading} = this.state;
-        const {form} = this.props;
+        const {loading,selectedRowKeys} = this.state;
+        const {form,getDataSource,onOk} = this.props;
+        const {driverClassName,password,schemaName,url,username} = getDataSource;
+        const original = {driverClassName,password,schemaName,url,username};
         if (loading) return;
         this.setState({loading: true});
         form.validateFieldsAndScroll((err, values) => {
             if (!err) {
-                this.setState({loading: true});
+                const tableIds = {tableIds : selectedRowKeys};
+                values ={...values,...original,...tableIds};
                 this.props.ajax
                     .post('import/data',values,{successTip:"导入成功"})
-                    .then(() => this.setState({dataVislble:true,}))
+                    .then(() => {
+                        onOk && onOk();
+                    })
                     .finally(() => this.setState({loading: false}));
             }
         });
     };
 
     render(){
-        const {loading,dataSource, selectedRowKeys} = this.state;
-        const {onCancel} = this.props;
+        const {loading} = this.state;
+        const {onCancel,dataSource} = this.props;
         const columns = [
             {
                 title: '表名',
-                dataIndex: 'tableIds',
+                dataIndex: 'name',
                 align: 'center'
             },
         ];
-
         const rowSelection = {
-            selectedRowKeys,
-            onChange: this.onSelectChange,
-            getCheckboxProps: record => ({
-                disabled: record.name === 'Disabled User',
-            }),
+            onChange:(selectedRowKeys)=>{
+              this.setState({selectedRowKeys})
+            },
+
         };
-
-// // rowSelection object indicates the need for row selection
-//         const rowSelection = {
-//             onChange: (selectedRowKeys, selectedRows) => {
-//                 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-//             },
-//             getCheckboxProps: record => ({
-//                 disabled: record.name === 'Disabled User', // Column configuration not to be checked
-//                 name: record.name,
-//             }),
-//         };
-
 
         return (
             <Modal
@@ -81,10 +59,10 @@ export default class ImportDataList extends Component {
                 onCancel={onCancel}
                 width={800}
                 destroyOnClose
-                style={{paddingTop: 50}}
+                style={{paddingTop: 10}}
                 footer={[
                     <Button key="submit" type="primary" onClick={this.handleOk}>
-                        保存
+                        提交
                     </Button>,
 
                 ]}
@@ -93,11 +71,11 @@ export default class ImportDataList extends Component {
                     loading={loading}
                     rowSelection={rowSelection}
                     columns={columns}
-                    dataSource={dataSource}
+                    dataSource={this.props.dataSource}
                     style={{marginTop: '40px'}}
                     pagination={false}
+                    rowKey={(record) =>record.id}
                 />
-
             </Modal>
         );
     }

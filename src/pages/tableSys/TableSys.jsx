@@ -21,7 +21,7 @@ export default class SchemaSys extends Component {
         pageNum: 1,
         pageSize: 10,
         data: null,
-
+        loading:false,
     };
 
     componentWillMount() {
@@ -38,10 +38,22 @@ export default class SchemaSys extends Component {
             );
     };
 
+    //导入库从子页面传来的保存按纽值
+    onOk = (value) => {
+        const {loading} = this.state;
+        if (loading) return;
+        this.setState({loading: true});
+        this.props.ajax.post('/import/table', value,{successTip:'导入数据成功'})
+            .then(() => {
+                this.setState({importVisible: false});
+            })
+            .catch(() => this.setState({importVisible: true,loading:false}))
+            .finally(() => this.setState({loading: false}));
+    };
+
     //导入库
-    importModal = (value) => {
+    importModal = () => {
         this.setState({importVisible: true});
-        console.log(value, 'value')
     };
     //修改
     modifyTable = (record) => {
@@ -73,14 +85,20 @@ export default class SchemaSys extends Component {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
         this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`)
             .then(res => {
+
                 const data = res.content.map(item => {
-                    return {schemaName: item.schemaInfo.name, appName: item.schemaInfo.appName, ...item}
+                    return {
+                        schemaName: item.schemaInfo.name,
+                        appName: item.schemaInfo.appName,
+                        ...item
+                    }
                 });
                 this.setState({
                     data,
                     pageNum: res.number,
                     pageSize: res.size,
                 });
+
             })
 
     };
@@ -219,7 +237,8 @@ export default class SchemaSys extends Component {
                 />
                 <ImportTable
                     visible={this.state.importVisible}
-                    onOK={this.importModal}
+                    onOk={this.onOk}
+                    schemaData = {this.state.schemaData}
                     onCancel={() => {
                         this.setState({importVisible: false})
                     }}
