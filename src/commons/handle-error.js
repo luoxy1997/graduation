@@ -9,12 +9,8 @@ import {toLogin} from './index';
  * @returns {*}
  */
 function getErrorTip({error, errorTip}) {
-
-    if (errorTip) return errorTip;
-
     if (error && error.response) {
-        const {status, message} = error.response;
-
+        const {status, data: message} = error.response;
         // 后端自定义信息
         if (message) return message;
 
@@ -33,10 +29,11 @@ function getErrorTip({error, errorTip}) {
         if (status === 504) {
             return '无法访问服务器！';
         }
-
     }
 
     if (error && error.message && error.message.startsWith('timeout of')) return '请求超时！';
+
+    if (errorTip) return errorTip;
 
     if (error) return error.message;
 

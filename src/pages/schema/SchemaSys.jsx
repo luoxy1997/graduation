@@ -24,8 +24,7 @@ export default class SchemaSys extends Component {
         dataSource: [],
         loading: false,
         id: "",
-        display:'none'
-
+        display:'none',
     };
 
     componentWillMount() {
@@ -79,7 +78,6 @@ export default class SchemaSys extends Component {
         } else {
             this.setState({record: null,display:'block'});
         }
-
     };
 
     onOk = (values) => {
@@ -100,12 +98,16 @@ export default class SchemaSys extends Component {
 
     //查看sql
     sqlModal = (record) => {
-        this.setState({id: record.id});
         this.setState({
+            id: record.id,
             sqlVisible: true,
         });
     };
 
+    importData = () => {
+        this.props.history.push('/ImportEdit')
+
+    };
 
     render() {
         const {importVisible, visible, sqlVisible, dataSource,display} = this.state;
@@ -167,7 +169,7 @@ export default class SchemaSys extends Component {
                         <Button type="primary" htmlType="submit" onClick={() => this.addModal(null)} style={{marginRight: 10}}>添加</Button>
                     </FormItem>
                     <FormItem>
-                        <Button  type="primary" htmlType="submit" onClick={this.importModal} style={{marginRight: 10}}>导入</Button>
+                        <Button  type="primary" htmlType="submit" onClick={this.importData} style={{marginRight: 10}}>导入</Button>
 
                     </FormItem>
                 </Form>
@@ -206,7 +208,6 @@ export default class SchemaSys extends Component {
                     onCancel={() => {
                         this.setState({sqlVisible: false})
                     }}
-
                 />
             </PageContent>
         );

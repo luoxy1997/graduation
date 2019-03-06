@@ -20,10 +20,8 @@ export default class SchemaSys extends Component {
         record: null,
         pageNum: 1,
         pageSize: 10,
-        data: null,
-        total: 0,
-
-
+        data:[],
+        loading:false,
     };
 
     componentWillMount() {
@@ -35,20 +33,32 @@ export default class SchemaSys extends Component {
         const {id} = record;
         this.props.ajax.del(`/tableinfo/${id}`)
             .then(() => {
-                    this.search({pageNum: 1, pageSize: this.state.pageSize});
                     notify('success', '删除成功');
                 }
             );
     };
 
+    //导入库从子页面传来的保存按纽值
+    onOk = (value) => {
+        const {loading} = this.state;
+        if (loading) return;
+        this.setState({loading: true});
+        this.props.ajax.post('/import/table', value,{successTip:'导入数据成功'})
+            .then(() => {
+                this.setState({importVisible: false});
+            })
+            .catch(() => this.setState({importVisible: true,loading:false}))
+            .finally(() => this.setState({loading: false}));
+    };
+
     //导入库
-    importModal = (value) => {
+    importModal = () => {
         this.setState({importVisible: true});
-        console.log(value, 'value')
     };
     //修改
-    modifyTable = () => {
-        this.props.history.push('/modifyTable')
+    modifyTable = (record) => {
+        const {id,name,remark}= record;
+        this.props.history.push({ pathname:'/modifyTable',state:{id,name,remark} })
     };
 
     //新增
@@ -65,32 +75,31 @@ export default class SchemaSys extends Component {
 
     //修改日志
     sqlDetails = (record) => {
-        const tableId = record.id;
-        const schemaId = record.schemaInfo.id;
-        this.props.history.push({pathname: '/modifyLog', state: {tableId,schemaId}});
+        const id = record.name;
+        this.props.history.push({pathname: '/modifyLog', state: {id}});
         this.setState({changeLogVisible: true});
     };
 
     //默认获取数据
     search = (args = {}) => {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
-        const value = this.props.form.getFieldsValue();
-        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`,value)
+        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`)
             .then(res => {
-                const data = res && res.content.length && res.content.map(item => {
-                    return {schemaName: item.schemaInfo.name, appName: item.schemaInfo.appName, ...item}
+                const data = res.content.map(item => {
+                    return {
+                        schemaName: item.schemaInfo.name,
+                        appName: item.schemaInfo.appName,
+                        ...item
+                    }
                 });
                 this.setState({
                     data,
                     pageNum: res.number,
                     pageSize: res.size,
-                    total: res.totalElements
                 });
             })
 
     };
-
-
     // 默认获取数据分页
     changePage = (pageNum) => {
         //塞数据
@@ -159,7 +168,7 @@ export default class SchemaSys extends Component {
                             <FormItem label="应用" {...formItemLayout}>
                                 {getFieldDecorator('appName')(
                                     <Input
-                                        placeholder="请输入应用名称"
+                                        placeholder="请输入schema"
                                     />
                                 )}
                             </FormItem>
@@ -177,7 +186,7 @@ export default class SchemaSys extends Component {
                             <FormItem
                                 label="table"
                             >
-                                {getFieldDecorator('tableName')(
+                                {getFieldDecorator('schemaName')(
                                     <Input
                                         placeholder="请输入表名"
                                     />
@@ -190,7 +199,6 @@ export default class SchemaSys extends Component {
                                 <Button
                                     type="primary"
                                     htmlType="submit"
-                                    onClick={this.search}
                                 >
                                     查询
                                 </Button>
@@ -217,23 +225,18 @@ export default class SchemaSys extends Component {
                     </Row>
                 </Form>
 
-                <Table
-                    columns={columns}
-                    dataSource={this.state.data}
-                    styleName="table"
-                    rowKey={record => record.name}/>
+                <Table columns={columns} dataSource={this.state.data} styleName="table" pagination={false}  rowKey={record => record.name}/>
                 <Pagination
                     current={this.state.pageNum}//当前的页数
-                    total={this.state.total}//接受的总数
                     pageSize={this.state.pageSize}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
                     style={{textAlign: 'center', marginTop: '20px'}}
-                    showTotal={total => `共 ${total}条`}//共多少条
                 />
                 <ImportTable
                     visible={this.state.importVisible}
-                    onOK={this.importModal}
+                    onOk={this.onOk}
+                    schemaData = {this.state.schemaData}
                     onCancel={() => {
                         this.setState({importVisible: false})
                     }}

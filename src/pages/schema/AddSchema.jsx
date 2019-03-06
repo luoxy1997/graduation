@@ -19,38 +19,6 @@ export default class AddSchema extends Component {
         }
     }
 
-    // handleOk = (e) => {
-    //     e.preventDefault();
-    //     const {record} = this.props;
-    //     const {onOk, form} = this.props;
-    //     const {newDetails} = this.state;
-    //     form.validateFieldsAndScroll((err, value) => {
-    //         // 对新增数据的处理
-    //         const newData = newDetails.map((item, index) => {
-    //             return {
-    //                 appName: value.appName[index],
-    //                 name: value.name[index],
-    //                 remark: value.remark[index],
-    //             }
-    //         });
-    //         // 对修改数据的处理
-    //         let modifyData={};
-    //         if (record) {
-    //             const newObj = {};
-    //             Object.keys(value).forEach((item) => {
-    //                 const valuesData = value[item][0];
-    //                 newObj[item] = valuesData;
-    //             });
-    //              modifyData = {...newObj, id: record.id};
-    //         }
-    //
-    //         if (!err) {
-    //             const values = record ? modifyData : newData;
-    //             onOk(values);
-    //         }
-    //     });
-    // };
-
     handleOk = (e) => {
             e.preventDefault();
             const {record} = this.props;
