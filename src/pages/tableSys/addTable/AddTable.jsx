@@ -31,6 +31,7 @@ export default class AddTable extends Component {
             })
     }
 
+
     //获取列数据
     fetchCol = (value) => {
         value.forEach(item => delete item.id);
@@ -39,6 +40,8 @@ export default class AddTable extends Component {
             colData: value,
         })
     };
+
+
     //获取索引数据
     fetchIndex = (value) => {
         value.forEach(item => delete item.id);
@@ -46,6 +49,7 @@ export default class AddTable extends Component {
             indexData: value,
         })
     };
+
     //发送数据
     handleOk = () => {
         this.props.form.validateFieldsAndScroll((err, value) => {

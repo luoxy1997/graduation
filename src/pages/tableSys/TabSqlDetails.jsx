@@ -9,7 +9,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 @ajaxHoc()
 @Form.create()
-export default class SqlDetails extends Component {
+export default class TabSqlDetails extends Component {
     state = {
         visible: false,
         sql: '',
@@ -21,8 +21,8 @@ export default class SqlDetails extends Component {
     };
 
     handleChange = (dbName) => {
-        const {id} = this.props;
-        this.props.ajax.get(`/schemainfo/sql/${dbName}/${id}`)
+        const tableId = this.props.record.id;
+        this.props.ajax.get(`/tableinfo/sql/${dbName}/${tableId}`)
             .then(res => {
                 this.setState({sql: sqlFormatter.format(res)});
             })

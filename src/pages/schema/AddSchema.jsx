@@ -140,7 +140,7 @@ export default class AddSchema extends Component {
                 <div style={{display: this.props.display}}>
                     <Row>
                         <Col span={24} style={{textAlign: "center"}}>
-                            <Button key="submit" type="primary" onClick={this.addDetails}>
+                            <Button key="submit" type="dashed" onClick={this.addDetails}>
                                 批量填加
                             </Button>
                         </Col>

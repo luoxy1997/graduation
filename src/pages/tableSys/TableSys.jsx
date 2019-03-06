@@ -3,12 +3,13 @@ import {Form, Input, Button, Table, Divider, Row, Col, Popconfirm, Pagination} f
 import PageContent from '../../layouts/page-content';
 import './style.less';
 import ImportTable from './ImportTable';
-import SqlDetails from '../schema/SqlDetails';
-import notify from './notify';
+import TabSqlDetails from './TabSqlDetails';
+import {Modal} from "antd/lib/index";
 
 
 export const PAGE_ROUTE = '/tableSys';
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
 @Form.create()
 
 
@@ -23,21 +24,43 @@ export default class SchemaSys extends Component {
         data:[],
         loading:false,
         total: 0,
+
     };
 
     componentWillMount() {
         this.search();
     }
 
-    //气泡确认框确认删除
-    confirm = (record) => {
+    // //气泡确认框确认删除
+    // confirm = (record) => {
+    //     const {appName} = record;
+    //     const {id} = record;
+    //     const successTip = `删除“${appName}”成功！`;
+    //     this.props.ajax.del(`/tableinfo/${id}`, null, {successTip})
+    //         .then(() => {
+    //                 this.search({pageNum: 1, pageSize: this.state.pageSize});
+    //             const data = this.state.dataSource.filter(item => item.id !== id);
+    //             this.setState({data});
+    //             }
+    //         );
+    // };
+
+   //气泡确认框确认删除(修改统一)
+    handleDelete = (record) => {
+        const {appName} = record;
         const {id} = record;
-        this.props.ajax.del(`/tableinfo/${id}`)
-            .then(() => {
-                    this.search({pageNum: 1, pageSize: this.state.pageSize});
-                    notify('success', '删除成功');
-                }
-            );
+        const successTip = `删除“${appName}”成功！`;
+        confirm({
+            title: `您确定要删除“${appName}”？`,
+            onOk: () => {
+                this.props.ajax.del(`/tableinfo/${id}`, null, {successTip})
+                    .then(() => {
+                        const data = this.state.dataSource.filter(item => item.id !== id);
+                        this.setState({data});
+                    });
+
+            },
+        });
     };
 
     //导入库从子页面传来的保存按纽值
@@ -128,15 +151,16 @@ export default class SchemaSys extends Component {
             {
                 title: '操作',
                 render: (record) => {
+                    console.log(record,"recordrecord")
                     return (
                         <span>
                         <a onClick={() => {
                             this.modifyTable(record)
                         }}>修改</a>
                         <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.confirm(record)} onCancel={this.cancel} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm>
+                       <a onClick={() => {
+                           this.handleDelete(record)
+                       }}>删除</a>
                         <Divider type="vertical"/>
                         <a onClick={() => {
                             this.sqlModal(record)
@@ -254,7 +278,7 @@ export default class SchemaSys extends Component {
                 />
 
 
-                <SqlDetails
+                <TabSqlDetails
                     visible={this.state.sqlVisible}
                     onCancel={() => {
                         this.setState({sqlVisible: false})
