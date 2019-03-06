@@ -4,7 +4,6 @@ import './style.less';
 import PageContent from '../../layouts/page-content';
 import ColItem from './addTable/ColItem';
 import IndexItem from './addTable/IndexItem';
-import InitialItem from "./InitialSys/InitialItem";
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -81,9 +80,7 @@ export default class ModifyTable extends Component {
                     <TabPane tab="索引管理" key="2">
                         <IndexItem/>
                     </TabPane>
-                    <TabPane tab="初始化数据管理" key="3">
-                        <InitialItem/>
-                    </TabPane>
+
                 </Tabs>
             </PageContent>
         );

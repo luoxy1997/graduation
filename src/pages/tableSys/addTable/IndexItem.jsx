@@ -1,65 +1,126 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input} from 'antd';
+import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input, InputNumber} from 'antd';
 import '../style.less';
+import {connect} from '../../../models';
+import notify from '../notify';
 
 const FormItem = Form.Item;
 const {Option} = Select;
 const {TextArea} = Input;
-@Form.create()
+const uuid = require('uuid/v1');
 
+
+@connect()
+@connect(state => {
+    const {data} = state.colData;
+    return {data};
+})
+@Form.create()
 export default class IndexItem extends Component {
     state = {
         visible: false,
         record: null,
         selectedRows: [],        //选中列信息的行
-        tableConfig: [{         //添加索引配置列信息
-            key: '0',
-            name: 'id',
-        }, {
-            key: '1',
-            name: 'name',
-        }, {
-            key: '2',
-            name: 'sex',
-        }],
+        tableConfig: this.props.data,   //[{name:name},{name:age},...]
         indexData: [],           //索引表格信息
+        selectedRowKeys: [],
     };
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            tableConfig: nextProps.data
+        })
+    }
+
     //气泡确认框确认
-    confirm = (e) => {
+    confirm = (record) => {
+        const resultData = this.state.indexData.filter(item => item.name !== record.name);
+        this.setState({
+            indexData: resultData
+        });
+        this.props.fetchIndex(resultData);
         message.success('删除成功');
     };
+
+    //添加索引
     addIndex = (record) => {
-        const id = record.id;
+        const name = record.name;
         this.setState({
             visible: true,
         });
-        if (id) {
-            this.setState({record: record});
+
+        if (name) {
+            let selectedRowKeys = [];
+            if (record.columns && record.columns.length) {
+                selectedRowKeys = record.columns.map(item => item.key);
+            }
+
+            this.setState({record: record, selectedRowKeys});
+
         } else {
-            this.setState({record: null});
+            this.setState({record: null, selectedRowKeys: [],});
+        }
+    };
+    //校验是否有重名索引
+    validateName = (rule, value, callback) => {
+        const {indexData, record} = this.state;
+        let duplicate = true;
+        if (indexData.length !== 0) duplicate = indexData.every(item => item.name !== value);
+        if (duplicate) {
+            callback();
+        } else {
+            if (record && record.name === value) {
+                callback();
+            } else {
+                callback('不能建立重复索引名！');
+            }
         }
     };
 
     handleOk = () => {
-        this.props.form.validateFields((err, value) => {
+        const {record} = this.state;
+        const {selectedRowKeys} = this.state;
+        const fields = [
+            'name',
+            'type',
+        ];
+        selectedRowKeys.forEach(item => {
+            fields.push(`number[${item}]`);
+            fields.push(`order[${item}]`);
+        });
+
+        this.props.form.validateFields(fields, (err, value) => {
             const {selectedRowKeys} = this.state;
+
             if (!err) {
-                const tableData = selectedRowKeys && selectedRowKeys.length && selectedRowKeys.map(item => {
+                const columnsData = selectedRowKeys && selectedRowKeys.length && selectedRowKeys.map(item => {
                     return {
-                        name: this.state.tableConfig[item].name,
+                        key: item,
+                        name: this.state.tableConfig.find(it => it.name === item).name,
                         order: value.order[item],
                         number: value.number[item],
                     }
                 });
                 delete value.order;
                 delete value.number;
-                const result = {...value, columns: tableData};    //添加索引信息后数据
-                const indexData = this.state.indexData;
-                indexData.push(result);
-                this.setState({
-                    indexData,
-                    visible: false,
-                });
+                const result = {...value, columns: columnsData};    //添加索引信息后数据
+                let {indexData} = this.state;
+                //新增，修改索引
+                if (record) {
+                    indexData = indexData.filter(item => item.name !== record.name);
+                }
+                indexData.push(result);     //给后端发送的数据
+
+                if (selectedRowKeys && selectedRowKeys.length !== 0) {
+                    this.setState({
+                        indexData,
+                        visible: false,
+                    });
+                    this.props.fetchIndex(indexData);
+                } else {
+                    notify('error', '请至少选择一个列配置！');
+                }
+
 
             }
         });
@@ -67,8 +128,10 @@ export default class IndexItem extends Component {
 
 
     render() {
+        const isUse = this.state.tableConfig && this.state.tableConfig.length !== 0
+
         const {getFieldDecorator} = this.props.form;
-        const {record} = this.state;
+        const {record, selectedRowKeys} = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: {span: 24},
@@ -79,45 +142,80 @@ export default class IndexItem extends Component {
                 sm: {span: 17},
             },
         };
+
+        //行选择--key值
         const rowSelection = {
+            selectedRowKeys,
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
                     selectedRowKeys,
                     selectedRows
                 });
 
-            }
+                // 如果未选中的行 清除校验信息
+                const {tableConfig} = this.state;
+
+                tableConfig.forEach(item => {
+                    const unSelected = !selectedRowKeys.find(it => it === item.key);
+                    if (unSelected) {
+
+                        const numberKey = `number[${item.key}]`;
+                        const numberValue = this.props.form.getFieldValue(numberKey);
+                        const orderKey = `order[${item.key}]`;
+                        const orderValue = this.props.form.getFieldValue(orderKey);
+
+                        this.props.form.setFields({
+                            [numberKey]: {
+                                value: numberValue,
+                                errors: null,
+                            },
+                            [orderKey]: {
+                                value: orderValue,
+                                errors: null,
+                            },
+                        });
+                    }
+                })
+
+            },
+
         };
 
-        const columns = [{
-            title: '索引名称',
-            dataIndex: 'name',
-            key: 'name',
-        }, {
-            title: '索引类型',
-            dataIndex: 'type',
-            key: 'type',
-        }, {
-            title: '列',
-            dataIndex: 'row',
-            key: 'row',
-        }, {
-            title: '操作',
-            render: (record) => {
-                return (
-                    <span>
+
+        const columns = [
+            {
+                title: '索引名称',
+                dataIndex: 'name',
+            },
+            {
+                title: '索引类型',
+                dataIndex: 'type',
+                render: text => text ? '唯一': '非唯一'
+            },
+            {
+                title: '列',
+                dataIndex: 'columns',
+                render: (value) => {
+                    console.log(value, 'value');
+                    if (!value || !value.length) return '';
+                    return value.map(item => (<div key={item.name}>{item.name}</div>))
+                }
+            },
+            {
+                title: '操作',
+                render: (record) => {
+                    return (
+                        <span>
                         <a onClick={() => {
                             this.addIndex(record)
                         }}>修改</a>
                         <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
+                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.confirm(record)} onCancel={this.cancel} okText="确定" cancelText="取消">
                             <a>删除</a>
                         </Popconfirm>
-
-
                     </span>)
-            }
-        },];
+                }
+            },];
 
 
         const columns2 = [{
@@ -128,48 +226,90 @@ export default class IndexItem extends Component {
         }, {
             align: 'center',
             title: '顺序',
-            render: (text, record) =>
-                <FormItem>
-                    {getFieldDecorator(`number[${record.key}]`, {
-                        initialValue: record && record.number,
-                        onChange: this.handleChange
-                    })(
-                        <Input
-                            style={{width: 100}}
-                            onChange={e => {
-                                record.money = e.target.value;
-                            }}
-                        />
-                    )}
+            render: (text, record) => {
 
-                </FormItem>
+                let it;
+                let number;
+                if (this.state.record) {
+                    this.state.indexData.forEach(item => {
+                        it = item.columns && item.columns.length && item.columns.find(item => item.key === record.key);
+                        number = it && it.number;
+                    });
+                } else {
+                    number = null
+                }
+
+
+                return (<FormItem>
+                    {getFieldDecorator(`number[${record.key}]`, {
+                        initialValue: number,
+                        rules: [{
+                            required: true, message: '必填项!',
+
+                        },
+                        ],
+
+                    })(
+                        <Input style={{width: 100}} placeholder='正整数'/>
+                    )}
+                </FormItem>)
+            }
+
+
         }, {
             align: 'center',
             title: '排序',
-            render: (text, record) =>
-                <FormItem>
+            render: (text, record) => {
+                let it;
+                let order;
+                if (this.state.record) {
+
+                    this.state.indexData.forEach(item => {
+                        it = item.columns && item.columns.length && item.columns.find(item => item.key === record.key);
+                        order = it && it.order;
+
+                    });
+                } else {
+                    order = null;
+                }
+
+                return <FormItem>
                     {getFieldDecorator(`order[${record.key}]`, {
-                        initialValue: record && record.order,
-                        onChange: this.handleChange
+                        initialValue: order,
+                        onChange: this.handleChange,
+                        rules: [{
+                            required: true, message: '必填项!',
+                        }]
+
                     })(
                         <Select style={{width: 120}} placeholder='选择排序方式'>
-                            <Option value="ASC">ASC</Option>
-                            <Option value="DESC">DESC</Option>
+                            <Option value={0}>ASC</Option>
+                            <Option value={1}>DESC</Option>
                         </Select>
                     )}
 
                 </FormItem>
+
+            }
+
         }];
 
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
-                    <Button type="primary" onClick={this.addIndex}>+ 添加索引</Button>
+                    <Button type="primary" icon="plus" onClick={this.addIndex} disabled={!isUse}>{isUse ? '添加索引' : '请先添加列信息'}</Button>
                 </div>
-                <Table dataSource={this.state.indexData} columns={columns} styleName="table"/>
+                <Table
+                    dataSource={this.state.indexData}
+                    columns={columns}
+                    styleName="table"
+                    rowKey={record => record.name}
+                    pagination={false}
+                />
                 <Modal
                     mask
                     width="500px"
+                    destroyOnClose
                     title={record ? '修改' : '添加'}
                     visible={this.state.visible}
                     onCancel={() => {
@@ -182,12 +322,25 @@ export default class IndexItem extends Component {
                     ]}
                 >
                     <Form>
+                        <FormItem>
+                            {getFieldDecorator('id', {
+                                initialValue: uuid(),
+                            })(
+                                <Input type="hidden"/>
+                            )}
+
+                        </FormItem>
                         <Row>
                             <FormItem label="索引名称" {...formItemLayout}>
                                 {getFieldDecorator('name', {
-                                    initialValue: record && record.name
+                                    initialValue: record && record.name,
+                                    rules: [{
+                                        required: true, message: '必填项!',
+                                    },
+                                        {validator: (rule, value, callback) => this.validateName(rule, value, callback)},
+                                    ]
                                 })(
-                                    <Input/>
+                                    <Input placeholder='请输入索引名称'/>
                                 )}
 
                             </FormItem>
@@ -196,12 +349,14 @@ export default class IndexItem extends Component {
                             <FormItem label="索引类型" {...formItemLayout}>
                                 {getFieldDecorator('type', {
                                     initialValue: record && record.type,
-                                    onChange: this.handleChange
+                                    rules: [{
+                                        required: true, message: '必填项!',
+                                    }]
+
                                 })(
-                                    <Select>
-                                        <Option value="PRIMARY KEY">PRIMARY KEY</Option>
-                                        <Option value="INDEX">INDEX</Option>
-                                        <Option value="INDEX">INDEX</Option>
+                                    <Select placeholder='请输入索引类型'>
+                                        <Option value='0'>非唯一</Option>
+                                        <Option value='1'>唯一</Option>
                                     </Select>
                                 )}
                             </FormItem>
@@ -214,6 +369,7 @@ export default class IndexItem extends Component {
                                     bordered
                                     pagination={false}
                                     rowSelection={rowSelection}
+                                    rowKey={record => record.key}
                                 />
                             </FormItem>
                         </Row>

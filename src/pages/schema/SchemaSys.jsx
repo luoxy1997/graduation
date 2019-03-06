@@ -14,7 +14,7 @@ const FormItem = Form.Item;
 export default class SchemaSys extends Component {
     state = {
         pageNum: 1,
-        pageSize: 5,
+        pageSize: 10,
         importVisible: false,   //导入数据框
         addVisible: false,  //新增框
         sqlVisible: false,  //sql详情框

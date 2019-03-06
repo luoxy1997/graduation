@@ -21,6 +21,8 @@ export default class SchemaSys extends Component {
         pageNum: 1,
         pageSize: 10,
         data: null,
+        total: 0,
+
 
     };
 
@@ -33,6 +35,7 @@ export default class SchemaSys extends Component {
         const {id} = record;
         this.props.ajax.del(`/tableinfo/${id}`)
             .then(() => {
+                    this.search({pageNum: 1, pageSize: this.state.pageSize});
                     notify('success', '删除成功');
                 }
             );
@@ -62,27 +65,32 @@ export default class SchemaSys extends Component {
 
     //修改日志
     sqlDetails = (record) => {
-        const id = record.name;
-        this.props.history.push({pathname: '/modifyLog', state: {id}});
+        const tableId = record.id;
+        const schemaId = record.schemaInfo.id;
+        this.props.history.push({pathname: '/modifyLog', state: {tableId,schemaId}});
         this.setState({changeLogVisible: true});
     };
 
     //默认获取数据
     search = (args = {}) => {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
-        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`)
+        const value = this.props.form.getFieldsValue();
+        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`,value)
             .then(res => {
-                const data = res.content.map(item => {
+                const data = res && res.content.length && res.content.map(item => {
                     return {schemaName: item.schemaInfo.name, appName: item.schemaInfo.appName, ...item}
                 });
                 this.setState({
                     data,
                     pageNum: res.number,
                     pageSize: res.size,
+                    total: res.totalElements
                 });
             })
 
     };
+
+
     // 默认获取数据分页
     changePage = (pageNum) => {
         //塞数据
@@ -151,7 +159,7 @@ export default class SchemaSys extends Component {
                             <FormItem label="应用" {...formItemLayout}>
                                 {getFieldDecorator('appName')(
                                     <Input
-                                        placeholder="请输入schema"
+                                        placeholder="请输入应用名称"
                                     />
                                 )}
                             </FormItem>
@@ -169,7 +177,7 @@ export default class SchemaSys extends Component {
                             <FormItem
                                 label="table"
                             >
-                                {getFieldDecorator('schemaName')(
+                                {getFieldDecorator('tableName')(
                                     <Input
                                         placeholder="请输入表名"
                                     />
@@ -182,6 +190,7 @@ export default class SchemaSys extends Component {
                                 <Button
                                     type="primary"
                                     htmlType="submit"
+                                    onClick={this.search}
                                 >
                                     查询
                                 </Button>
@@ -208,13 +217,19 @@ export default class SchemaSys extends Component {
                     </Row>
                 </Form>
 
-                <Table columns={columns} dataSource={this.state.data} styleName="table" pagination={false}  rowKey={record => record.name}/>
+                <Table
+                    columns={columns}
+                    dataSource={this.state.data}
+                    styleName="table"
+                    rowKey={record => record.name}/>
                 <Pagination
                     current={this.state.pageNum}//当前的页数
+                    total={this.state.total}//接受的总数
                     pageSize={this.state.pageSize}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
                     style={{textAlign: 'center', marginTop: '20px'}}
+                    showTotal={total => `共 ${total}条`}//共多少条
                 />
                 <ImportTable
                     visible={this.state.importVisible}

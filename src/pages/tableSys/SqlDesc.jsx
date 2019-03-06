@@ -3,16 +3,20 @@ import {Modal, Form, Button, Select, Row, Col} from 'antd';
 import sqlFormatter from "sql-formatter";   //sql格式化插件
 import SyntaxHighlighter from 'react-syntax-highlighter';   //语法高亮插件
 import {dracula} from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import {ajaxHoc} from "../../commons/ajax";
 
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 @Form.create()
+@ajaxHoc()
 export default class sqlDesc extends Component {
     state = {
         visible: false,
-        sql: null,
+        changeSetSql: '',
+        rollbackSql:'',
+
 
     };
 
@@ -25,29 +29,27 @@ export default class sqlDesc extends Component {
         })
     };
 
-    handleChange = (value) => {
-        console.log(`selected ${value}`);
+    onCancel = () => {
+        this.props.onCancel();
+        this.setState({
+            changeSetSql: '',
+            rollbackSql:'',
+        })
     };
 
-    componentWillMount() {
-        const sql = sqlFormatter.format(`
-  CREATE TABLE \`user\` (
-  \`id\` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
-  \`password\` varchar(200) DEFAULT NULL COMMENT '密码',
-  \`real_name\` varchar(200) DEFAULT NULL COMMENT '用户名称',
-  \`phone\` varchar(20) DEFAULT NULL COMMENT '手机号',
-  \`email\` varchar(100) NOT NULL COMMENT '邮箱',
-  \`status\` int(1) DEFAULT NULL COMMENT '状态 1：正常  0：停用',
-  \`create_user_id\` int(11) DEFAULT NULL COMMENT '创建人',
-  \`create_time\` timestamp(6) NULL DEFAULT NULL COMMENT '创建时间',
-  \`update_user_id\` int(11) DEFAULT NULL COMMENT '修改人',
-  \`update_time\` timestamp(6) NULL DEFAULT NULL COMMENT '修改时间',
-  PRIMARY KEY (\`id\`),
-  UNIQUE KEY \`user_email_uindex\` (\`email\`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
-`);
-        this.setState({sql})
-    }
+    handleChange = (dbName) => {
+        const {id} = this.props.record;
+        this.props.ajax.get(`/changelog/sql/${dbName}/${id}`)
+            .then(res => {
+                if(res){
+                    const changeSetSql = sqlFormatter.format(res.changeSetSql);
+                    const rollbackSql = sqlFormatter.format(res.rollbackSql);
+
+                    this.setState({changeSetSql,rollbackSql})
+
+                }
+            })
+    };
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -70,36 +72,32 @@ export default class sqlDesc extends Component {
                 title="查看修改Sql"
                 visible={this.props.visible}
                 onOk={this.handleOk}
-                onCancel={this.props.onCancel}
+                onCancel={this.onCancel}
                 footer={null}
 
             >
                 <Form>
                     <Row>
                         <Col span={2}></Col>
-                        <Col span={12}>
-                            <FormItem label="数据源类型:" {...formDescLayout}>
+                        <Col span={12} style={{margin: '0 auto', textAlign:'center'}}>
+                            <FormItem label="数据源类型:" {...formDescLayout} >
                                 {getFieldDecorator('type', {
-                                    initialValue: "lucy"
+                                    onChange: this.handleChange
                                 })(
-                                    <Select style={{width: 300}} onChange={this.handleChange}>
-                                        <Option value="jack">MySQL</Option>
-                                        <Option value="lucy">Oracle</Option>
-                                        <Option value="l2ucy">SqlServer</Option>
-                                        <Option value="luc3y">Postgresql</Option>
+                                    <Select style={{width: 300}} placeholder="请选择数据库类型">
+                                        <Option value="mysql">MySQL</Option>
+                                        <Option value="oracle">Oracle</Option>
+                                        <Option value="postgresql">Postgresql</Option>
                                     </Select>
                                 )}
                             </FormItem>
-                        </Col>
-                        <Col span={10}>
-                            <Button type="primary">查看</Button>
                         </Col>
                     </Row>
                     <Row>
                         <Col span={11}>
                             <FormItem label="修改集">
                                     <SyntaxHighlighter language="" style={dracula} showLineNumbers >
-                                        {this.state.sql}
+                                        {this.state.changeSetSql}
                                     </SyntaxHighlighter>
                             </FormItem>
                         </Col>
@@ -108,7 +106,7 @@ export default class sqlDesc extends Component {
                         <Col span={11}>
                             <FormItem label="回滚集">
                                 <SyntaxHighlighter language="" style={dracula} showLineNumbers >
-                                    {this.state.sql}
+                                    {this.state.rollbackSql}
                                 </SyntaxHighlighter>
                             </FormItem>
                         </Col>

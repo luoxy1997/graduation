@@ -1,13 +1,19 @@
 import React, {Component} from 'react';
-import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form} from 'antd';
+import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form, } from 'antd';
 import '../style.less';
-import sqlFormatter from "sql-formatter";
+import {connect} from '../../../models';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
 const {Option} = Select;
 const uuid = require('uuid/v1');
 @Form.create()
+
+@connect()
+@connect(state => {
+    const {data} = state.colData;
+    return {data};
+})
 
 export default class ColItem extends Component {
     state = {
@@ -19,23 +25,12 @@ export default class ColItem extends Component {
 
     //气泡确认框确认
     confirm = (record) => {
-        const {data} = this.state;
-        const newData = data.filter(item => {
+        const data = this.state.data.filter(item => {
             return item.id !== record.id;
         });
-        this.setState({
-            data: newData,
-        })
-
-
+        this.setState({data}, () => this.sendData());
 
     };
-
-    componentWillMount() {
-        const sql = sqlFormatter.format("er_tables t order by t.NUM_ROWS desc;");
-        this.setState({sql})
-    }
-
 
     addCol = (record) => {
         this.setState({
@@ -48,38 +43,58 @@ export default class ColItem extends Component {
         }
     };
 
-    handleOk = () => {
-        const {record} = this.state;
-        //  修改
-        if (record) {
-            this.props.form.validateFields((err, value) => {
-                const modifyData = this.state.data.filter(item => {
-                    return item.id !== record.id;
-                });
-                modifyData.push(value);
-                this.setState({
-                    data: modifyData,
-                    colVisible: false,
-                });
-
-            });
-        } else {
-            //新增
-            this.props.form.validateFields((err, value) => {
-                if (!err) {
-                    const data = this.state.data;
-                    data.push(value);
-                    this.setState({
-                        data: data,
-                        colVisible: false,
-                    });
-
-                }
-            })
-        }
-
+    //新增/修改/删除时，redux发送数据
+    sendData = () => {
+        const columns = this.state.data.map(item => {
+            return {
+                name: item.name,
+                key: item.name,
+            }
+        });
+        this.props.action.colData.setData(columns);
+        this.props.fetchCol(this.state.data);
     };
 
+    handleOk = () => {
+        const {record,} = this.state;
+        let {data} = this.state;
+        this.props.form.validateFields((err, value) => {
+            if (!err) {
+                //新增修改索引
+                if (record) {
+                    data = this.state.data.filter(item => {
+                        return item.id !== record.id;
+                    });
+                }
+                data.push(value);
+                this.setState({
+                    data,
+                    colVisible: false,
+                }, () => {
+                    this.sendData();
+                });
+
+
+            }
+
+        });
+
+    };
+    //自定义校验重复列名
+    validateName = (rule, value, callback) => {
+        const {data, record} = this.state;
+        let duplicate = true;
+        if (data.length !== 0) duplicate = data.every(item => item.name !== value);
+        if (duplicate) {
+            callback();
+        } else {
+            if (record && record.name === value) {
+                callback();
+            } else {
+                callback('不能建立重复列名');
+            }
+        }
+    };
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -144,20 +159,23 @@ export default class ColItem extends Component {
                     </span>)
             }
         }];
-
-        const item = this.props.form.getFieldValue('defaultValueIsFunc') ?
+        let isFunction = this.state.record && this.state.record.defaultValueIsFunc;
+        const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
+        if (defaultValueIsFunc === true) isFunction = true;
+        if (defaultValueIsFunc === false) isFunction = false;
+        const item = isFunction ?
             <FormItem label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
                     initialValue: record && record.defaultValue
                 })(
-                    <Input/>
+                    <Input placeholder="请输入默认值"/>
                 )}
             </FormItem> :
             <FormItem label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
                     initialValue: record && record.defaultValue
                 })(
-                    <Select>
+                    <Select placeholder="请选择当前时间">
                         <Option value='1'>当前时间</Option>
                     </Select>
                 )}
@@ -167,14 +185,14 @@ export default class ColItem extends Component {
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
-                    <Button type="primary" onClick={() => this.addCol(null)}>+ 添加列</Button>
+                    <Button type="primary" onClick={() => this.addCol(null)} icon="plus">添加列</Button>
                 </div>
                 <Table
                     dataSource={data}
                     columns={columns}
                     styleName="table"
-                    rowKey={record => record.id}
-                    pagination={null}
+                    rowKey={record => record.name}
+                    pagination={false}
                 />
                 <Modal
                     mask
@@ -209,9 +227,14 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="列名" {...formItemLayout}>
                                     {getFieldDecorator('name', {
-                                        initialValue: record && record.name
+                                        initialValue: record && record.name,
+                                        rules: [{
+                                            required: true, message: '请输入列名!',
+                                        },
+                                            {validator: (rule, value, callback) => this.validateName(rule, value, callback)},
+                                        ],
                                     })(
-                                        <Input/>
+                                        <Input placeholder="请输入列名"/>
                                     )}
 
                                 </FormItem>
@@ -219,13 +242,16 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="类型" {...formItemLayout}>
                                     {getFieldDecorator('type', {
-                                        initialValue: record && record.type
+                                        initialValue: record && record.type,
+                                        rules: [{
+                                            required: true, message: '请输入类型!',
+                                        }]
                                     })(
-                                        <Select>
+                                        <Select placeholder="请输入类型">
                                             {options.map(
                                                 (item, index) => {
                                                     return (
-                                                        <Option key={index} value={index}>{item}</Option>
+                                                        <Option key={index} value={item}>{item}</Option>
                                                     )
                                                 }
                                             )}
@@ -238,9 +264,9 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="长度" {...formItemLayout}>
                                     {getFieldDecorator('length', {
-                                        initialValue: record && record.address
+                                        initialValue: record && record.length
                                     })(
-                                        <Input/>
+                                        <Input placeholder="请输入长度"/>
                                     )}
                                 </FormItem>
                             </Col>
@@ -252,11 +278,14 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="主键" {...formItemLayout}>
                                     {getFieldDecorator('primaryKey', {
-                                        initialValue: record && record.primaryKey
+                                        initialValue: record && record.primaryKey,
+                                        rules: [{
+                                            required: true, message: '请选择是否为主键!',
+                                        }]
                                     })(
                                         <Radio.Group buttonStyle="solid">
-                                            <Radio.Button value="a">是</Radio.Button>
-                                            <Radio.Button value="b">否</Radio.Button>
+                                            <Radio.Button value={1}>是</Radio.Button>
+                                            <Radio.Button value={0}>否</Radio.Button>
 
                                         </Radio.Group>
                                     )}
@@ -281,7 +310,10 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="Not Null" {...formItemLayout}>
                                     {getFieldDecorator('notNull', {
-                                        initialValue: record && record.notNull
+                                        initialValue: record && record.notNull,
+                                        rules: [{
+                                            required: true, message: '请选择是否为空!',
+                                        }]
                                     })(
                                         <Radio.Group buttonStyle="solid">
                                             <Radio.Button value="0">是</Radio.Button>
@@ -294,7 +326,10 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="自增" {...formItemLayout}>
                                     {getFieldDecorator('autoincrement', {
-                                        initialValue: record && record.autoincrement
+                                        initialValue: record && record.autoincrement,
+                                        rules: [{
+                                            required: true, message: '请选择是否自增!',
+                                        }]
                                     })(
                                         <Radio.Group buttonStyle="solid">
                                             <Radio.Button value="1">是</Radio.Button>
@@ -312,7 +347,7 @@ export default class ColItem extends Component {
                                     {getFieldDecorator('remark', {
                                         initialValue: record && record.remark
                                     })(
-                                        <TextArea rows={2}/>
+                                        <TextArea rows={2} placeholder="请输入备注"/>
                                     )}
                                 </FormItem>
                             </Col>
