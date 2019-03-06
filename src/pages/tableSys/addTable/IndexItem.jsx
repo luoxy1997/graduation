@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input} from 'antd';
+import {Button, Divider, Table, InputNumber, Form, Row, Select, Col, Modal, Input} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
 import notify from '../notify';
-
+const confirm = Modal.confirm;
 const FormItem = Form.Item;
 const {Option} = Select;
 const {TextArea} = Input;
@@ -32,14 +32,30 @@ export default class IndexItem extends Component {
         })
     }
 
-    //气泡确认框确认
-    confirm = (record) => {
-        const resultData = this.state.indexData.filter(item => item.name !== record.name);
-        this.setState({
-            indexData: resultData
+    // //气泡确认框确认
+    // confirm = (record) => {
+    //     const resultData = this.state.indexData.filter(item => item.name !== record.name);
+    //     this.setState({
+    //         indexData: resultData
+    //     });
+    //     this.props.fetchIndex(resultData);
+    //     message.success('删除成功');
+    // };
+
+    //气泡确认框确认删除(修改统一)
+    handleDelete = (record) => {
+        const {name} = record;
+        confirm({
+            title: `您确定要删除“${name}”？`,
+            onOk: () => {
+                const resultData = this.state.indexData.filter(item => item.name !== record.name);
+                this.setState({
+                    indexData: resultData
+                });
+                this.props.fetchIndex(resultData);
+                notify('success', `删除${name}成功~`);
+            },
         });
-        this.props.fetchIndex(resultData);
-        message.success('删除成功');
     };
 
     //添加索引
@@ -54,7 +70,6 @@ export default class IndexItem extends Component {
             if (record.columns && record.columns.length) {
                 selectedRowKeys = record.columns.map(item => item.key);
             }
-
             this.setState({record: record, selectedRowKeys});
 
         } else {
@@ -110,13 +125,13 @@ export default class IndexItem extends Component {
                     indexData = indexData.filter(item => item.name !== record.name);
                 }
                 indexData.push(result);     //给后端发送的数据
-
                 if (selectedRowKeys && selectedRowKeys.length !== 0) {
                     this.setState({
                         indexData,
                         visible: false,
                     });
                     this.props.fetchIndex(indexData);
+                    notify('success', '操作成功~');
                 } else {
                     notify('error', '请至少选择一个列配置！');
                 }
@@ -209,9 +224,7 @@ export default class IndexItem extends Component {
                             this.addIndex(record)
                         }}>修改</a>
                         <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.confirm(record)} onCancel={this.cancel} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm>
+                           <a onClick={()=>this.handleDelete(record)}>删除</a>
                     </span>)
                 }
             },];
@@ -249,7 +262,7 @@ export default class IndexItem extends Component {
                         ],
 
                     })(
-                        <Input style={{width: 100}} placeholder='正整数'/>
+                        <InputNumber style={{width: 100}} placeholder='请输入正整数'/>
                     )}
                 </FormItem>)
             }

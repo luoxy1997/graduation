@@ -68,7 +68,7 @@ export default class ImportEdit extends Component {
 
 
     render() {
-        const {dataVislble} = this.state;
+        const {dataVislble,res} = this.state;
         const {getFieldDecorator} = this.props.form;
         const formItemLayoutRight = {
             labelCol: {
@@ -92,7 +92,10 @@ export default class ImportEdit extends Component {
         };
         return (
             <div>
-
+                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20 }}>
+                    <div style={{float: 'left', background: '#1890ff', height:28, width: 5, marginLeft: 15, }}></div>
+                    &nbsp;&nbsp;导入
+                </div>
                 <div>
                     <Row>
                         <Col span={12}>

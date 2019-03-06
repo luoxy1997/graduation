@@ -2,10 +2,11 @@ import React, {Component} from 'react';
 import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form,} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
-
+import notify from '../notify'
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
 const {Option} = Select;
+const confirm = Modal.confirm;
 const uuid = require('uuid/v1');
 @Form.create()
 
@@ -23,14 +24,21 @@ export default class ColItem extends Component {
         data: [],
     };
 
-    //气泡确认框确认
-    confirm = (record) => {
-        const data = this.state.data.filter(item => {
-            return item.id !== record.id;
+    //气泡确认框确认删除(修改统一)
+    handleDelete = (record) => {
+        const {name} = record;
+        confirm({
+            title: `您确定要删除“${name}”？`,
+            onOk: () => {
+                const data = this.state.data.filter(item => {
+                    return item.id !== record.id;
+                });
+                notify('success', `删除${name}成功~`);
+                this.setState({data}, () => this.sendData());
+            },
         });
-        this.setState({data}, () => this.sendData());
-
     };
+
 
     addCol = (record) => {
         this.setState({
@@ -67,12 +75,14 @@ export default class ColItem extends Component {
                     });
                 }
                 data.push(value);
+                notify('success', '操作成功~');
                 this.setState({
                     data,
                     colVisible: false,
                 }, () => {
                     this.sendData();
-                });
+                })
+
 
 
             }
@@ -153,9 +163,7 @@ export default class ColItem extends Component {
                             this.addCol(record)
                         }}>修改</a>
                         <Divider type="vertical"/>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.confirm(record)} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm>
+                            <a onClick={()=>this.handleDelete(record)}>删除</a>
                     </span>)
             }
         }];

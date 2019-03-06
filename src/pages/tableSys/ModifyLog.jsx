@@ -3,9 +3,9 @@ import {Form, Table, Icon, Pagination, Popconfirm,} from 'antd';
 import PageContent from '../../layouts/page-content';
 import SqlDesc from './SqlDesc';
 import moment from 'moment';
-import './notify'
-import notify from "./notify";
+import {Modal} from "antd/lib/index";
 
+const confirm = Modal.confirm;
 export const PAGE_ROUTE = '/modifyLog';
 
 
@@ -52,14 +52,31 @@ export default class ModifyLog extends Component {
         this.search({pageNum: pageNum});
     };
 
-    //删除日志
-    deleteItem = (record) => {
-        const id = record.id;
-        this.props.ajax.del(`/changelog/${id}`)
-            .then(() => {
-                notify('success', '删除成功');
-                this.search();
-            });
+    // //删除日志
+    // deleteItem = (record) => {
+    //     const id = record.id;
+    //     this.props.ajax.del(`/changelog/${id}`)
+    //         .then(() => {
+    //             notify('success', '删除成功');
+    //             this.search();
+    //         });
+    // };
+
+    //删除日志(修改统一)
+    handleDelete = (record) => {
+        const {id} = record;
+        const successTip = `删除“${id}”成功！`;
+        confirm({
+            title: `您确定要删除“${id}”？`,
+            onOk: () => {
+                this.props.ajax.del(`/changelog/${id}`, null, {successTip})
+                    .then(() => {
+                        const dataSource = this.state.dataSource.filter(item => item.id !== id);
+                        this.setState({dataSource},this.search);
+                    });
+
+            },
+        });
     };
 
     //查看Sql
@@ -121,9 +138,9 @@ export default class ModifyLog extends Component {
                 align: 'center',
                 render: record =>
                     <span>
-                        <Popconfirm title="确定删除这条数据吗?" onConfirm={() => this.deleteItem(record)} onCancel={this.cancel} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm><br/>
+                        <a onClick={() => {
+                            this.handleDelete(record)
+                        }}>删除</a><br/>
                         <a onClick={() => this.sqlDetails(record)}>查看SQL</a>
                     </span>
             },
