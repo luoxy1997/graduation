@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table, Row, Col, Popconfirm, Pagination} from 'antd';
+import {Button, Divider, Table, Pagination, Modal} from 'antd';
 import InitialModal from './InitialModal';
 import '../style.less';
 import {Form} from "antd/lib/index";
 import {ajaxHoc} from "../../../commons/ajax";
 
+const confirm = Modal.confirm;
 @ajaxHoc()
 @Form.create()
 export default class InitialItem extends Component {
@@ -19,9 +20,34 @@ export default class InitialItem extends Component {
         columns: [], //动态的columns
         modalData: [],//弹框所需要的dataSource
     };
-    search = (args = {}) => {
-        const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
-        const tableId = this.props.tableId;
+
+    componentWillMount() {
+        this.search();
+    }
+
+    onOk = () => {
+        this.search();
+        this.setState({
+            visible: false,
+        })
+    };
+    //通过行id删除初始化数据
+    handleDelete = (record) => {
+        const {rowId} = record;
+        const successTip = `删除成功！`;
+        confirm({
+            title: `您确定要删除这条初始化数据？`,
+            onOk: () => {
+                this.props.ajax.del(`/init/${rowId}`, null, {successTip})
+                    .then(() => {
+                        this.search({pageSize: this.state.page, pageNum: 1});
+                        this.search();
+                    });
+            },
+        });
+    };
+
+    search = () => {
         //查询出动态的列
         this.props.ajax.get(`/columninfo?&&pageSize=9999`, {tableId: this.props.tableId})
             .then(res => {
@@ -43,9 +69,7 @@ export default class InitialItem extends Component {
                                         this.addData(record)
                                     }}>修改</a>
                                     <Divider type="vertical"/>
-                                    <Popconfirm title="确定删除这条数据吗?" onConfirm={this.confirm} onCancel={this.cancel} okText="确定" cancelText="取消">
-                                        <a>删除</a>
-                                    </Popconfirm>
+                                        <a onClick={() => this.handleDelete(record)}>删除</a>
                                 </span>)
                             }
 
@@ -58,18 +82,23 @@ export default class InitialItem extends Component {
                         });
                         this.setState({
                             columns,
-                            modalData
-                        })
+                            modalData,
+                            pageSize: (columns.length - 1) * 10 || 10
+                        }, () => this.dataSourceInit({}))
                     }
 
                 }
-            })
-            .finally(() => this.setState({loading: false}));
+            });
+
+
+    };
+    dataSourceInit = (args = {}) => {
         //查询出数据，构造成DataSource
-        this.props.ajax.get(`/init/${tableId}`)
+        const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
+        const tableId = this.props.tableId;
+        this.props.ajax.get(`/init/${tableId}?pageSize=${pageSize}&&pageNum=${pageNum}`)
             .then(res => {
                 let obj = {};
-                console.log(res, 'res');
                 //将相同initRow的对象分类到一个、对象当中 obj格式是[initRow:[{},{},{}],initRow:[{},{},{}]]
                 res.content.forEach(item => {
                     const key = item.initRowId.toString();
@@ -84,21 +113,28 @@ export default class InitialItem extends Component {
                 //编辑数组，将每个对象中的columnId作为键名，value作为值
                 const dataSource = dataList.map(item => {
                         let obj = {};
-                        item.map(it => {
-                            console.log(it,'kkkk');
+                        item.forEach(it => {
                             obj[it.columnId] = it.value;
                             obj[`${it.columnId}valueIsFunc`] = it.valueIsFunc;
                         });
                         return obj;
                     }
                 );
+                dataSource.forEach((item,order) =>{
+                    const rowId = Object.keys(obj).find((it,index) =>
+                        order === index
+                    );
+                    item[`rowId`] = rowId;
+                });
+                const total = res.totalElements / this.state.pageSize * 10;
                 this.setState({
-                    dataSource
+                    dataSource,
+                    total,
+
                 })
 
             })
             .finally(() => this.setState({loading: false}));
-
     };
 
     // 默认获取数据分页
@@ -106,15 +142,12 @@ export default class InitialItem extends Component {
         //塞数据
         this.setState({pageNum: pageNum});
         //塞数据后立即执行函数并使用数据时，会产生异步，此时我们获取不到最新的值，所以我们这个时候传参
-        this.search({pageNum: pageNum, pageSize: this.state.pageSize});
+        this.dataSourceInit({pageNum: pageNum, pageSize: this.state.pageSize});
     };
 
 
-    componentWillMount() {
-        this.search();
-    }
-
     addData = (record) => {
+        this.search();
         this.setState({
             visible: true
         });
@@ -131,7 +164,7 @@ export default class InitialItem extends Component {
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
-                    <Button type="primary" onClick={()=>this.addData(null)}>+ 添加初始数据</Button>
+                    <Button type="primary" onClick={() => this.addData(null)}>+ 添加初始数据</Button>
                 </div>
                 <Table
                     dataSource={dataSource}
@@ -142,7 +175,7 @@ export default class InitialItem extends Component {
                 <Pagination
                     current={this.state.pageNum}//当前的页数
                     total={this.state.total}//接受的总数
-                    pageSize={this.state.pageSize}//一页的条数
+                    pageSize={10}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
                     style={{textAlign: 'center', marginTop: '20px'}}
@@ -157,6 +190,7 @@ export default class InitialItem extends Component {
                     title={this.state.record ? "修改初始数据" : "添加初始数据"}
                     dataSource={this.state.modalData}
                     tableId={this.props.tableId}
+                    onOk={this.onOk}
                 />
 
 

@@ -219,7 +219,6 @@ export default class IndexModal extends Component {
 
                 dataSource.forEach(item => {
                     const unSelected = !selectedRowKeys.find(it => it === item.key);
-                    console.log(unSelected, 'iop');
                     if (unSelected) {
 
                         const numberKey = `number[${item.key}]`;

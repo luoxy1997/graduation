@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {Modal, Form, Checkbox, Button, Table, Input, Select} from 'antd';
+import {Modal, Form, Radio, Button, Table, Input, Select} from 'antd';
 import {ajaxHoc} from "../../../commons/ajax";
+import notify from '../notify';
 const FormItem = Form.Item;
 const {Option} = Select;
-
 @Form.create()
 @ajaxHoc()
 export default class InitialModal extends Component {
@@ -13,6 +13,7 @@ export default class InitialModal extends Component {
 
 
     handleOk = () => {
+        const {record} = this.props;
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const filedsValue = this.props.dataSource.map(item => {
@@ -23,11 +24,23 @@ export default class InitialModal extends Component {
                     }
                 });
 
-                const result = [{columns: filedsValue, tableId: this.props.tableId}]
-                this.props.ajax.post('/init',result)
-                    .then(res => {
-                        console.log(res,'res')
-                    })
+                let result ;
+                if(record){
+                    result = {columns: filedsValue, initRowId: Number(record.rowId)};
+                    this.props.ajax.put('/init',result)
+                        .then(() => {
+                            notify('success','修改初始化数据成功');
+                            this.props.onOk();
+                        })
+                }else{
+                    result = [{columns: filedsValue, tableId: this.props.tableId}];
+                    this.props.ajax.post('/init?pageSize=999',result)
+                        .then(() => {
+                            notify('success','添加初始化数据成功');
+                            this.props.onOk();
+                        })
+                }
+
 
             }
         })
@@ -45,14 +58,25 @@ export default class InitialModal extends Component {
             {
                 title: '是否是函数',
                 render: (record) => {
-                    let value = this.props.record && this.props.record[`${record.id}valueIsFunc`];
+                    let value = this.props.record && this.props.record[`${record.id}valueIsFunc`] ;
                     const {getFieldDecorator} = this.props.form;
                     return (
                         <FormItem>
-                            {getFieldDecorator(`valueIsFunc[${record.name}]`, {
-                                onChange: this.onChange,
+                            {getFieldDecorator(`valueIsFunc[${record.name}]`,{
+                                initialValue: value || false,
+                                onChange:()=>{
+                                    const valueIsFuncName = `value[${record.name}]`;
+                                    this.props.form.setFields({
+                                        [valueIsFuncName]:{
+                                            value: void 0
+                                        }
+                                    })
+                                }
                             })(
-                                <Checkbox defaultChecked={value}/>
+                                <Radio.Group  buttonStyle="solid">
+                                    <Radio.Button value={true}>是</Radio.Button>
+                                    <Radio.Button value={false}>否</Radio.Button>
+                                </Radio.Group>
                             )}
                         </FormItem>
                     )
@@ -65,31 +89,31 @@ export default class InitialModal extends Component {
                     const {getFieldDecorator} = this.props.form;
                     const value = this.props.record && this.props.record[record.id];
                     const type = this.props.form.getFieldValue(`valueIsFunc[${record.name}]`);
-
                     if (type) {
-                        console.log('')
                         return (
                             <FormItem>
                                 {getFieldDecorator(`value[${record.name}]`, {
-                                    initialValue: value
+                                    initialValue: value || 'current_datetime'
                                 })(
-                                    <Select style={{width: '100%'}}>
+                                    <Select style={{width: '200px'}}  placeholder='请选择值'>
                                         <Option value='current_datetime'>current_datetime</Option>
                                         <Option value='current_timestamp'>current_timestamp</Option>
                                     </Select>
                                 )}
                             </FormItem>
                         );
+                    }else{
+                        return (
+                            <FormItem>
+                                {getFieldDecorator(`value[${record.name}]`, {
+                                    initialValue: value,
+                                })(
+                                    <Input style={{width: '200px'}} placeholder='请输入值'/>
+                                )}
+                            </FormItem>
+                        )
                     }
-                    return (
-                        <FormItem>
-                            {getFieldDecorator(`value[${record.name}]`, {
-                                initialValue: value,
-                            })(
-                                <Input/>
-                            )}
-                        </FormItem>
-                    )
+
                 },
                 align: 'center'
             }];
@@ -118,6 +142,7 @@ export default class InitialModal extends Component {
                     bordered
                     pagination={false}
                     size="middle"
+                    rowKey={record => record.name}
                 />
             </Modal>
         );

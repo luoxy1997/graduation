@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Row, Col, Input, Select, Modal, Button} from 'antd';
+import {Form, Row, Col, Input, Button} from 'antd';
 import ImportDataList from './ImportDataList';
 import notify from './notify';
 export const PAGE_ROUTE = '/ImportEdit';
@@ -68,7 +68,7 @@ export default class ImportEdit extends Component {
 
 
     render() {
-        const {dataVislble,res} = this.state;
+        const {dataVislble} = this.state;
         const {getFieldDecorator} = this.props.form;
         const formItemLayoutRight = {
             labelCol: {

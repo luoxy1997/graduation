@@ -16,17 +16,12 @@ export const PAGE_ROUTE = '/modifyTable';
 
 export default class ModifyTable extends Component {
 
-    callback = (key) => {
-        console.log(key);
-    };
-
   saveBtn = () => {
       const successTip = '保存成功';
       this.props.form.validateFields((err, values) => {
           if (!err) {
               this.props.ajax.put('/tableinfo', values, {successTip})
                   .then(res => {
-                      console.log(res, "search.res");
                       let name = '';
                       let remark = '';
                       let id = '';
@@ -105,7 +100,7 @@ export default class ModifyTable extends Component {
 
                 </Form>
 
-                <Tabs onChange={this.callback} type="card">
+                <Tabs type="card">
                     <TabPane tab="列管理" key="1" >
                         <ColItem tableId={this.props.location.state.id} />
                     </TabPane>

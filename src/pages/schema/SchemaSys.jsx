@@ -38,7 +38,6 @@ export default class SchemaSys extends Component {
             if (!err) {
                 this.props.ajax.get(`/schemainfo?pageNum=${pageNum}&pageSize=${pageSize}`, values)
                     .then(res => {
-                        console.log(res, "search.res");
                         let total = 0;
                         let dataSource = [];
                         let pageNum = this.state.pageNum;

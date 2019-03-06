@@ -20,7 +20,6 @@ export default class IndexEditModal extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.record !== this.props.record) {
             const colName = nextProps.record && nextProps.record.colName && nextProps.record.colName.split(',');
-            console.log('llll');
             this.setState({
                 selectedRowKeys: colName,
                 record: nextProps.record,
@@ -40,9 +39,7 @@ export default class IndexEditModal extends Component {
             'type',
             'remark'
         ];
-        console.log(record, 'record');
         //动态添加要校验的内容
-        console.log(selectedRowKeys);
         selectedRowKeys.forEach(item => {
 
             fields.push(`number[${item}]`);
@@ -51,8 +48,6 @@ export default class IndexEditModal extends Component {
 
         form.validateFieldsAndScroll(fields, (err, values) => {
             if (!err) {
-                console.log(selectedRows, 'sds');
-
                 const data = selectedRowKeys.map(item => {
                     return {
                         columnId: selectedRows.find(it => it.name === item).key || selectedRows.find(it => it.name === item).id,
@@ -144,7 +139,6 @@ export default class IndexEditModal extends Component {
             title: '顺序',
             render: (text, record) => {
                 const initialOrder = this.props.record && this.props.record.indexColumns.find(it => it.columnName === record.name);
-                {
                     return <FormItem>
                         {getFieldDecorator(`number[${record.name}]`, {
                             initialValue: initialOrder && initialOrder.number,
@@ -161,7 +155,7 @@ export default class IndexEditModal extends Component {
                         )}
 
                     </FormItem>
-                }
+
             }
         }, {
             align: 'center',

@@ -21,16 +21,7 @@ export default class ImportTable extends Component {
     search = () => {
         this.props.ajax.get('/schemainfo/list')
             .then(res => {
-                console.log(res, "data,,");
-                // const schemaData = res && res.map(item => {
-
-                //     return {
-                //         schemaId: item.id,
-                //         ...item
-                //     }
-                // });
                 this.setState({schemaData:res});
-                //console.log(schemaData, "schemaDataoooo")
             })
             .finally(() => this.setState({loading: false}));
 
@@ -41,7 +32,6 @@ export default class ImportTable extends Component {
     handleOk = () => {
         const {onOk} = this.props;
         this.props.form.validateFields((err, value) => {
-            console.log(value,"valuevalue")
             if (!err) {
                 const {schemaId} = value;
                 const schema = this.state.schemaData.find( item => item.id === schemaId);
@@ -50,10 +40,6 @@ export default class ImportTable extends Component {
             }
         })
     };
-    handleChange = (e) => {
-        console.log(e,'qwe');
-    };
-
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -87,7 +73,6 @@ export default class ImportTable extends Component {
                 onOk={this.handleOk}
                 destroyOnClose
                 onCancel={this.props.onCancel}
-                destroyOnClose
                 footer={[
                     <Button key="submit" type="primary" onClick={this.handleOk}>
                         确认导入
@@ -104,7 +89,7 @@ export default class ImportTable extends Component {
                                         rules: [{
                                             required: true, message: '请选择schema！',
                                         }],
-                                        onChange: this.handleChange,
+
                                     })(
                                     <Select placeholder='请选择schema'>
                                         {this.state.schemaData.map((item, index) => {

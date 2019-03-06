@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Button, Table, Icon, Pagination, Popconfirm, Divider,} from 'antd';
+import {Form, Table, Icon, Pagination, Popconfirm,} from 'antd';
 import PageContent from '../../layouts/page-content';
 import SqlDesc from './SqlDesc';
 import moment from 'moment';

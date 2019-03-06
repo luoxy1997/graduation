@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, Form, Button, Select, Row, Col} from 'antd';
+import {Modal, Form, Select, Row, Col} from 'antd';
 import sqlFormatter from "sql-formatter";   //sql格式化插件
 import SyntaxHighlighter from 'react-syntax-highlighter';   //语法高亮插件
 import {dracula} from 'react-syntax-highlighter/dist/esm/styles/hljs';

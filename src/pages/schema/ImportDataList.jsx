@@ -37,7 +37,7 @@ export default class ImportDataList extends Component {
 
     render(){
         const {loading} = this.state;
-        const {onCancel,dataSource} = this.props;
+        const {onCancel} = this.props;
         const columns = [
             {
                 title: '表名',

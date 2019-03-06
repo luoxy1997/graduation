@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form, } from 'antd';
+import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form,} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
 
@@ -163,21 +163,25 @@ export default class ColItem extends Component {
         const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
         if (defaultValueIsFunc === true) isFunction = true;
         if (defaultValueIsFunc === false) isFunction = false;
+        const defaultValue = record && record.defaultValue
         const item = isFunction ?
             <FormItem label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
-                    initialValue: record && record.defaultValue
+                    initialValue: defaultValue || 'current_datetime'
                 })(
-                    <Input placeholder="请输入默认值"/>
+                    <Select placeholder="请选择默认值">
+                        <Option value='current_datetime'>current_datetime</Option>
+                        <Option value='current_timestamp'>current_timestamp</Option>
+
+                    </Select>
                 )}
-            </FormItem> :
+            </FormItem>
+            :
             <FormItem label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
-                    initialValue: record && record.defaultValue
+                    initialValue: defaultValue
                 })(
-                    <Select placeholder="请选择当前时间">
-                        <Option value='1'>当前时间</Option>
-                    </Select>
+                    <Input placeholder="请输入默认值"/>
                 )}
             </FormItem>;
 
@@ -294,7 +298,10 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="默认值为函数" {...formItemLayout}>
                                     {getFieldDecorator('defaultValueIsFunc', {
-                                        initialValue: record && record.defaultValueIsFunc,
+                                        initialValue: isFunction || false,
+                                        onChange: () => {
+                                            this.props.form.setFieldsValue({defaultValue: void 0});
+                                        }
                                     })(
                                         <Radio.Group buttonStyle="solid">
                                             <Radio.Button value={true}>是</Radio.Button>

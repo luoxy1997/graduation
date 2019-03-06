@@ -34,7 +34,6 @@ export default class AddTable extends Component {
     //获取列数据
     fetchCol = (value) => {
         value.forEach(item => delete item.id);
-        console.log(value, 'idiiii');
         this.setState({
             colData: value,
         })

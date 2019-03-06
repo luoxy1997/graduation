@@ -79,10 +79,8 @@ export default class IndexItem extends Component {
             visible: true,
         });
         if (id) {
-            console.log("修改");
             this.setState({record: record});
         } else {
-            console.log("删除");
             this.setState({record: null});
         }
     };

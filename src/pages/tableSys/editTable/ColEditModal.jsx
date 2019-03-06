@@ -49,18 +49,18 @@ export default class ColEditModal extends Component {
                 sm: {span: 18},
             },
         };
-
-        let isFunction = this.props.record && this.props.record.defaultValueIsFunc;
+        //防止回显时默认值框显示错误
+        let isFunction = record && record.defaultValueIsFunc;
         const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
+        const defaultValue = record && record.defaultValue;
 
         if (defaultValueIsFunc === true) isFunction = true;
 
         if (defaultValueIsFunc === false) isFunction = false;
-
         const item = isFunction ?
             <Form.Item label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
-                    initialValue: record && record.defaultValue,
+                    initialValue: defaultValue || 'current_datetime',
                 })(
                     <Select placeholder="请选择值类型">
                         <Option value="current_datetime">current_datetime</Option>
@@ -70,12 +70,11 @@ export default class ColEditModal extends Component {
             </Form.Item> :
             <Form.Item label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
-
                     initialValue: record && record.defaultValue,
                 })(
                     <Input placeholder="请输入默认值"/>
                 )}
-            </Form.Item>
+            </Form.Item>;
 
         return (
             <Modal
@@ -178,7 +177,7 @@ export default class ColEditModal extends Component {
                         <Col span={12}>
                             <FormItem label="默认值为函数" {...formItemLayout}>
                                 {getFieldDecorator('defaultValueIsFunc', {
-                                    initialValue: record && record.defaultValueIsFunc,
+                                    initialValue: isFunction || false,
                                     onChange: () => {
                                         this.props.form.setFieldsValue({defaultValue: void 0});
                                     }

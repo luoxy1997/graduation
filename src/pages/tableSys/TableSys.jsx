@@ -90,14 +90,14 @@ export default class SchemaSys extends Component {
         this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`,value)
             .then(res => {
                 const data = res && res.content.length && res.content.map(item => {
-                    return {schemaName: item.schemaInfo.name, appName: item.schemaInfo.appName, ...item}
+                    return {schemaName: item.schemaInfo && item.schemaInfo.name, appName: item.schemaInfo && item.schemaInfo.appName, ...item}
                 });
                 this.setState({
                     data,
                     pageNum: res.number,
                     pageSize: res.size,
                     total: res.totalElements
-                });
+                })
             })
 
     };
@@ -231,7 +231,7 @@ export default class SchemaSys extends Component {
                     columns={columns}
                     dataSource={this.state.data}
                     styleName="table"
-                    rowKey={record => record.name}
+                    rowKey={record => record.id}
                     pagination={false}
                 />
 

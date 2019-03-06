@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input, InputNumber} from 'antd';
+import {Button, Divider, Table, Popconfirm, message, Form, Row, Select, Col, Modal, Input} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
 import notify from '../notify';
@@ -196,7 +196,6 @@ export default class IndexItem extends Component {
                 title: '列',
                 dataIndex: 'columns',
                 render: (value) => {
-                    console.log(value, 'value');
                     if (!value || !value.length) return '';
                     return value.map(item => (<div key={item.name}>{item.name}</div>))
                 }
