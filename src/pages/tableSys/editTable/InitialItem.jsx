@@ -23,7 +23,6 @@ export default class InitialItem extends Component {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
         const tableId = this.props.tableId;
         //查询出动态的列
-        //  TODO
         this.props.ajax.get(`/columninfo?&&pageSize=9999`, {tableId: this.props.tableId})
             .then(res => {
                 if (res) {
