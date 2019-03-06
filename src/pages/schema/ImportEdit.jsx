@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Row, Col, Input, Select, Modal, Button} from 'antd';
+import {Form, Row, Col, Input, Select, Modal, Button,Icon} from 'antd';
 import ImportDataList from './ImportDataList';
 import notify from './notify';
 export const PAGE_ROUTE = '/ImportEdit';
@@ -92,7 +92,10 @@ export default class ImportEdit extends Component {
         };
         return (
             <div>
-
+                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20 }}>
+                    <div style={{float: 'left', background: '#1890ff', height:28, width: 5, marginLeft: 15, }}></div>
+                    &nbsp;&nbsp;导入
+                </div>
                 <div>
                     <Row>
                         <Col span={12}>
