@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Form, Row, Col, Input, Select, Modal, Button} from 'antd';
 import ImportDataList from './ImportDataList';
-
+import notify from './notify';
 export const PAGE_ROUTE = '/ImportEdit';
 
 const {TextArea} = Input;
@@ -14,35 +14,50 @@ export default class ImportEdit extends Component {
         data: {},
         dataVislble: false,
         selectedRowKeys: [],
-        schemaId: ''
+        schemaId: '',
+        dataSource:[],
+        getDataSource:{}
     };
+
+    onOk = (e) => {
+        this.setState({
+            dataVislble: false,
+        })
+    }
 
 
     Submit = (e) => {
         e.preventDefault();
-        const {loading} = this.state;
-        const {form, history} = this.props;
+        const {loading,} = this.state;
+        const {form} = this.props;
         if (loading) return;
         this.setState({loading: true});
         form.validateFieldsAndScroll((err, values) => {
-            console.log('llll');
             if (!err) {
                 this.setState({loading: true});
                 this.props.ajax
                     .post('/import/schema', values)
                     .then((res) => {
-                            const schemaId = res.schemaId;
+                            const schemaId = res;
                             this.setState({
                                     dataVislble: true,
-                                    selectedRowKeys: [],
+                                    getDataSource:values,
 
                                 }
                             );
                             this.props.ajax
-                                .get(`/tableinfo/${schemaId}`, {successTip: "导入成功"})
+                                .get(`/tableinfo/${schemaId}` )
                                 .then((res) => {
-                                    console.log(res, "res");
-                                    this.setState({loading: false});
+                                    let dataSource = [];
+                                    if (res) {
+                                        notify('success','导入成功');
+                                        dataSource = res || [];
+                                    }
+                                    this.setState({
+                                        dataVislble: true,
+                                        loading: false,
+                                        dataSource:dataSource
+                                    });
                                 })
                         }
                     )
@@ -53,7 +68,7 @@ export default class ImportEdit extends Component {
 
 
     render() {
-        const {dataVislble} = this.state;
+        const {dataVislble,res} = this.state;
         const {getFieldDecorator} = this.props.form;
         const formItemLayoutRight = {
             labelCol: {
@@ -167,7 +182,7 @@ export default class ImportEdit extends Component {
                         <Col span={24} style={{textAlign: "center"}}>
                            <span>
                                <Button type="primary" onClick={this.Submit}>导入</Button>
-                         </span>
+                          </span>
                         </Col>
                     </Row>
                 </div>
@@ -175,7 +190,9 @@ export default class ImportEdit extends Component {
                 <ImportDataList
                     dataVislble={dataVislble}
                     title="导入"
-                    schemaId={this.state}
+                    onOk={() => this.setState({dataVislble: false})}
+                    dataSource={this.state.dataSource}
+                    getDataSource={this.state.getDataSource}
                     onCancel={() => this.setState({dataVislble: false})}
                 />
             </div>

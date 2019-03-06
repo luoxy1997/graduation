@@ -12,13 +12,13 @@ const Option = Select.Option;
 export default class SqlDetails extends Component {
     state = {
         visible: false,
-        sql: this.props.sql,
+        sql: '',
     };
 
     onCancel =() => {
         this.props.onCancel();
         this.setState({sql:""});
-}
+    };
 
     handleChange = (dbName) => {
         const {id} = this.props;

@@ -79,43 +79,19 @@ export default class IndexItem extends Component {
             visible: true,
         });
         if (id) {
-
+            console.log("修改");
             this.setState({record: record});
         } else {
+            console.log("删除");
             this.setState({record: null});
         }
     };
+
     onOk = () => {
         this.setState({
             visible: false
         });
         this.search();
-    };
-
-
-    handleOk = () => {
-        this.props.form.validateFields((err, value) => {
-            const {selectedRowKeys} = this.state;
-            if (!err) {
-                const tableData = selectedRowKeys && selectedRowKeys.length && selectedRowKeys.map(item => {
-                    return {
-                        name: this.state.tableConfig[item].name,
-                        order: value.order[item],
-                        number: value.number[item],
-                    }
-                });
-                delete value.order;
-                delete value.number;
-                const result = {...value, columns: tableData};    //添加索引信息后数据
-                const indexData = this.state.indexData;
-                indexData.push(result);
-                this.setState({
-                    indexData,
-                    visible: false,
-                });
-
-            }
-        });
     };
 
     handleDelete = (record) => {
@@ -138,15 +114,13 @@ export default class IndexItem extends Component {
         const columns = [{
             title: '索引名称',
             dataIndex: 'name',
-            key: 'name',
         }, {
             title: '索引类型',
             dataIndex: 'type',
-            key: 'type',
+            render: text => text === 0? '非唯一' : '唯一'
         }, {
             title: '列',
             dataIndex: 'colName',
-            key: 'colName',
             render: text => {
                 const result = text.split(",");
                 const colName = result.map((item, index) => {

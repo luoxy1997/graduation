@@ -13,15 +13,18 @@ export default class IndexEditModal extends Component {
     state = {
         dataSource: this.props.indexTableConfig,
         selectedRowKeys: [],
+        selectedRows: [],
         record: this.props.record,
     };
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.record !== this.state.record) {
+        if (nextProps.record !== this.props.record) {
             const colName = nextProps.record && nextProps.record.colName && nextProps.record.colName.split(',');
+            console.log('llll');
             this.setState({
                 selectedRowKeys: colName,
-                record: nextProps.record
+                record: nextProps.record,
+                selectedRows: nextProps.record && nextProps.record.columnInfos
             });
 
         }
@@ -30,39 +33,46 @@ export default class IndexEditModal extends Component {
     handleOk = (e) => {
         e.preventDefault();
         const {onOk, form, record} = this.props;
-        const {selectedRowKeys} = this.state;
+        const {selectedRowKeys, selectedRows} = this.state;
         //校验的内容固定'type'和'name'
         const fields = [
             'name',
             'type',
             'remark'
         ];
+        console.log(record, 'record');
         //动态添加要校验的内容
+        console.log(selectedRowKeys);
         selectedRowKeys.forEach(item => {
+
             fields.push(`number[${item}]`);
             fields.push(`order[${item}]`);
         });
 
         form.validateFieldsAndScroll(fields, (err, values) => {
             if (!err) {
+                console.log(selectedRows, 'sds');
+
                 const data = selectedRowKeys.map(item => {
                     return {
-                        columnId: selectedRowKeys.find(it => it.name === item),
+                        columnId: selectedRows.find(it => it.name === item).key || selectedRows.find(it => it.name === item).id,
                         order: values.order[item],
                         number: values.number[item],
                     }
                 });
                 delete values.order;
                 delete values.number;
-                const result = {...values, columns: data, tableId: this.props.tableId};
-                console.log(result, 'xxxx');
+                let result;
+
                 if (record) {
-                    this.props.ajax.put(`/indexinfo`, [result])
+                    result = {...values, columns: data, id: this.props.record.id};
+                    this.props.ajax.put(`/indexinfo`, result)
                         .then(() => {
                             notify('success', '索引信息修改成功');
                             onOk(result);
                         });
                 } else {
+                    result = {...values, columns: data, tableId: this.props.tableId};
                     this.props.ajax.post(`/indexinfo`, [result])
                         .then(() => {
                             notify('success', '索引信息添加成功');
@@ -90,9 +100,10 @@ export default class IndexEditModal extends Component {
         };
         const rowSelection = {
             selectedRowKeys,
-            onChange: (selectedRowKeys) => {
+            onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
-                    selectedRowKeys
+                    selectedRowKeys,
+                    selectedRows
                 });
 
                 //取消选中时，清除校验
@@ -181,7 +192,7 @@ export default class IndexEditModal extends Component {
                 title={this.props.title}
                 visible={this.props.visible}
                 onOk={this.handleOk}
-                onCancel={this.onCancel}
+                onCancel={this.props.onCancel}
                 destroyOnClose={true}
                 footer={[
                     <Button key="submit" type="primary" onClick={this.handleOk}>
