@@ -67,7 +67,7 @@ export default class ImportTable extends Component {
         return (
             <Modal
                 mask
-                width="700px"
+                width="850px"
                 title="导入表"
                 visible={this.props.visible}
                 onOk={this.handleOk}

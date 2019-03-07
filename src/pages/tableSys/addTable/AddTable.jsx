@@ -5,6 +5,8 @@ import PageContent from '../../../layouts/page-content';
 import ColItem from './ColItem';
 import IndexItem from './IndexItem';
 import notify from '../notify'
+import {connect} from "../../../models";
+
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -13,6 +15,12 @@ const Option = Select.Option;
 
 export const PAGE_ROUTE = '/addTable';
 @Form.create()
+@connect()
+@connect(state => {
+    const {data} = state.colData;
+    return {data};
+})
+
 
 export default class AddTable extends Component {
     state = {
@@ -23,6 +31,8 @@ export default class AddTable extends Component {
 
     //默认获取数据库中所有schema
     componentDidMount() {
+        //页面初始化时清空redux中已有的列值
+        this.props.action.colData.setData([]);
         this.props.ajax.get('/schemainfo')
             .then(res => {
                 res && this.setState({

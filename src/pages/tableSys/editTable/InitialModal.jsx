@@ -16,24 +16,27 @@ export default class InitialModal extends Component {
         const {record} = this.props;
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                const filedsValue = this.props.dataSource.map(item => {
+                let feildsValue = this.props.dataSource.map(item => {
                     return {
                         columnId: item.id,
-                        value: values.value[item.name],
+                        id: item.id,
+                        value: values.value[item.name] || null ,
                         valueIsFunc: values.valueIsFunc[item.name]
                     }
                 });
-
                 let result ;
                 if(record){
-                    result = {columns: filedsValue, initRowId: Number(record.rowId)};
+                    feildsValue.forEach(item => delete item.columnId);
+                    result = {columns: feildsValue, initRowId: Number(record.rowId)};
+                    console.log(result,'result');
                     this.props.ajax.put('/init',result)
                         .then(() => {
                             notify('success','修改初始化数据成功');
                             this.props.onOk();
                         })
                 }else{
-                    result = [{columns: filedsValue, tableId: this.props.tableId}];
+                    feildsValue.forEach(item => delete item.id);
+                    result = [{columns: feildsValue, tableId: this.props.tableId}];
                     this.props.ajax.post('/init?pageSize=999',result)
                         .then(() => {
                             notify('success','添加初始化数据成功');

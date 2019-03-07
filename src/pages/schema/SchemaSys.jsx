@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, Table, Divider, Pagination} from 'antd';
+import {Form, Input, Button, Table, Divider, Pagination, Row, Col} from 'antd';
 import PageContent from '../../layouts/page-content';
 import ImportModal from './ImportModal';
 import AddSchema from './AddSchema';
@@ -20,11 +20,11 @@ export default class SchemaSys extends Component {
         sqlVisible: false,  //sql详情框
         record: {},
         total: 0,
-        visible:false,
+        visible: false,
         dataSource: [],
         loading: false,
         id: "",
-        display:'none',
+        display: 'none',
     };
 
     componentWillMount() {
@@ -73,9 +73,9 @@ export default class SchemaSys extends Component {
         this.setState({visible: true});
         //修改
         if (record) {
-            this.setState({record: record,display:'none'});
+            this.setState({record: record, display: 'none'});
         } else {
-            this.setState({record: null,display:'block'});
+            this.setState({record: null, display: 'block'});
         }
     };
 
@@ -86,12 +86,12 @@ export default class SchemaSys extends Component {
         const url = `/schemainfo`;
         const successTip = record ? '修改成功' : '添加成功';
         if (loading) return;
-         submitAjax(url, values,{successTip})
-                .then(res => {
-                    this.setState({visible: false});
-                    this.search({pageNum:1})
-                })
-                .catch(() => this.setState({visible: true,loading:false}));
+        submitAjax(url, values, {successTip})
+            .then(res => {
+                this.setState({visible: false});
+                this.search({pageNum: 1})
+            })
+            .catch(() => this.setState({visible: true, loading: false}));
 
     };
 
@@ -109,7 +109,7 @@ export default class SchemaSys extends Component {
     };
 
     render() {
-        const {importVisible, visible, sqlVisible, dataSource,display} = this.state;
+        const {importVisible, visible, sqlVisible, dataSource, display} = this.state;
         const {getFieldDecorator} = this.props.form;
         const columns = [{
             title: '应用',
@@ -139,40 +139,76 @@ export default class SchemaSys extends Component {
             }
         },];
 
+        const formItemLayout = {
+            labelCol: {
+                xs: {span: 24},
+                sm: {span: 8},
+            },
+            wrapperCol: {
+                xs: {span: 24},
+                sm: {span: 16},
+            },
+        };
+
         return (
             <PageContent>
                 <Form layout="inline"
-                      style={{padding: '24px', background: '#fbfbfb', border: '1px solid #d9d9d9', borderRadius: '6px'}}
+                      style={{padding: 24, background: '#fbfbfb', border: '1px solid #d9d9d9', borderRadius: '6px'}}
                 >
-                    <FormItem
-                        label="应用"
-                    >
-                        {getFieldDecorator('appName')(
-                            <Input placeholder="请输入应用名称！"/>
-                        )}
+                    <Row>
+                        <Col span={6}>
+                            <FormItem
+                                label="应用"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('appName')(
+                                    <Input placeholder="请输入应用名称！"/>
+                                )}
 
-                    </FormItem>
-                    <FormItem
-                        label="schema"
-                    >
-                        {getFieldDecorator('name')(
-                            <Input placeholder="请输入schema名称！"/>
-                        )}
+                            </FormItem>
+                        </Col>
+                        <Col span={6}>
+                            <FormItem label="schema" {...formItemLayout}>
+                                {getFieldDecorator('schemaName')(
+                                    <Input
+                                        placeholder="请输入schema"
+                                    />
+                                )}
+                            </FormItem>
+                        </Col>
 
-                    </FormItem>
-                    <FormItem>
-
-                        <Button type="primary" htmlType="submit" onClick={() => this.search({pageNum: 1})} style={{marginRight: 10, marginLeft: 10}}>查询</Button>
-                    </FormItem>
-                    <FormItem>
-                        <Button type="primary" htmlType="submit" onClick={() => this.addModal(null)} style={{marginRight: 10}}>添加</Button>
-                    </FormItem>
-                    <FormItem>
-                        <Button  type="primary" htmlType="submit" onClick={this.importData} style={{marginRight: 10}}>导入</Button>
-
-                    </FormItem>
+                        <Col span={6}>
+                            <FormItem>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    onClick={() => this.search({pageNum: 1})}
+                                >
+                                    查询
+                                </Button>
+                            </FormItem>
+                            <FormItem>
+                                <Button
+                                    type="primary" ghost
+                                    htmlType="submit"
+                                    onClick={() => this.addModal(null)}
+                                >
+                                    添加
+                                </Button>
+                            </FormItem>
+                            <FormItem>
+                                <Button
+                                    type="dashed"
+                                    htmlType="submit"
+                                    onClick={this.importData}
+                                >
+                                    导入
+                                </Button>
+                            </FormItem>
+                        </Col>
+                    </Row>
                 </Form>
-                <Table columns={columns} dataSource={dataSource} styleName='table' pagination={false} rowKey={(record) =>record.id}/>
+                <Table columns={columns} dataSource={dataSource} styleName='table' pagination={false} rowKey={(record) => record.id}/>
                 <Pagination
                     current={this.state.pageNum}//当前的页数
                     total={this.state.total}//接受的总数

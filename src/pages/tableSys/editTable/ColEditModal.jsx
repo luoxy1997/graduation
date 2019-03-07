@@ -10,7 +10,7 @@ const {TextArea} = Input;
 @Form.create()
 export default class ColEditModal extends Component {
 
-    state = {}
+    state = {};
 
     handleOk = (e) => {
         e.preventDefault();

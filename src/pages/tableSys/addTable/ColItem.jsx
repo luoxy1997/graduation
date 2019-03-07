@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Divider, Col, Row, Table, Popconfirm, Input, Radio, Select, Modal, Form,} from 'antd';
+import {Button, Divider, Col, Row, Table, Input, Radio, Select, Modal, Form,} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
 import notify from '../notify'

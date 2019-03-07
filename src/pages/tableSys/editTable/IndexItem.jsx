@@ -63,7 +63,7 @@ export default class IndexItem extends Component {
                 if (res) {
                     const indexTableConfig = res.content.map(item => {
                             return {
-                                key: item.id,
+                                id: item.id,
                                 name: item.name
                             }
                         }

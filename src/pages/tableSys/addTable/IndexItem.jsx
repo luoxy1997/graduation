@@ -262,7 +262,7 @@ export default class IndexItem extends Component {
                         ],
 
                     })(
-                        <InputNumber style={{width: 100}} placeholder='请输入正整数'/>
+                        <InputNumber style={{width: 110}} placeholder='请输入正整数' min={1}/>
                     )}
                 </FormItem>)
             }

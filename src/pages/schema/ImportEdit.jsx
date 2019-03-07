@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
-import {Form, Row, Col, Input, Button} from 'antd';
+import {Form, Row, Col, Input, Button, Icon} from 'antd';
 import ImportDataList from './ImportDataList';
 import notify from './notify';
+import PageContent from '../../layouts/page-content';
+
 export const PAGE_ROUTE = '/ImportEdit';
+
 
 const {TextArea} = Input;
 
@@ -68,7 +71,7 @@ export default class ImportEdit extends Component {
 
 
     render() {
-        const {dataVislble,res} = this.state;
+        const {dataVislble} = this.state;
         const {getFieldDecorator} = this.props.form;
         const formItemLayoutRight = {
             labelCol: {
@@ -77,7 +80,7 @@ export default class ImportEdit extends Component {
             },
             wrapperCol: {
                 xs: {span: 11},
-                sm: {span: 13},
+                sm: {span: 14},
             },
         };
         const formItemLayoutLeft = {
@@ -86,19 +89,20 @@ export default class ImportEdit extends Component {
                 sm: {span: 5},
             },
             wrapperCol: {
-                xs: {span: 11},
-                sm: {span: 18},
+                xs: {span: 14},
+                sm: {span: 19},
             },
         };
         return (
-            <div>
-                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20 }}>
-                    <div style={{float: 'left', background: '#1890ff', height:28, width: 5, marginLeft: 15, }}></div>
-                    &nbsp;&nbsp;导入
+            <PageContent>
+                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20}}>
+                    <div style={{float: 'left', background: '#1890ff', height: 28, width: 5, marginRight: 5}}></div>
+                    <Icon type="link" style={{marginRight: 5, fontSize: '22'}}/>
+                    导入Schema
                 </div>
-                <div>
+                <div style={{paddingTop: '20px'}}>
                     <Row>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="schema名称" {...formItemLayoutRight}>
                                 {getFieldDecorator('schemaName', {
                                     rules: [{
@@ -109,7 +113,7 @@ export default class ImportEdit extends Component {
                                 )}
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="应用名" {...formItemLayoutRight}>
                                 {getFieldDecorator('appName', {
                                     rules: [{
@@ -122,7 +126,7 @@ export default class ImportEdit extends Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="url" {...formItemLayoutRight}>
                                 {getFieldDecorator('url', {
                                     rules: [{
@@ -133,7 +137,7 @@ export default class ImportEdit extends Component {
                                 )}
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="driverClassName" {...formItemLayoutRight}>
                                 {getFieldDecorator('driverClassName', {
                                     rules: [{
@@ -146,7 +150,7 @@ export default class ImportEdit extends Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="username" {...formItemLayoutRight}>
                                 {getFieldDecorator('username', {
                                     rules: [{
@@ -157,7 +161,7 @@ export default class ImportEdit extends Component {
                                 )}
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={10}>
                             <Form.Item label="password" {...formItemLayoutRight}>
                                 {getFieldDecorator('password', {
                                     rules: [{
@@ -172,7 +176,7 @@ export default class ImportEdit extends Component {
                     </Row>
 
                     <Row>
-                        <Col span={24}>
+                        <Col span={20}>
                             <Form.Item label="备注信息" {...formItemLayoutLeft}>
                                 {getFieldDecorator('remark')(
                                     <TextArea rows={4}/>
@@ -198,7 +202,7 @@ export default class ImportEdit extends Component {
                     getDataSource={this.state.getDataSource}
                     onCancel={() => this.setState({dataVislble: false})}
                 />
-            </div>
+            </PageContent>
         );
     }
 }

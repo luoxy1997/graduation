@@ -48,9 +48,10 @@ export default class IndexEditModal extends Component {
 
         form.validateFieldsAndScroll(fields, (err, values) => {
             if (!err) {
+
                 const data = selectedRowKeys.map(item => {
                     return {
-                        columnId: selectedRows.find(it => it.name === item).key || selectedRows.find(it => it.name === item).id,
+                        columnId: selectedRows.find(it => it.name === item).id,
                         order: values.order[item],
                         number: values.number[item],
                     }
@@ -139,22 +140,24 @@ export default class IndexEditModal extends Component {
             title: '顺序',
             render: (text, record) => {
                 const initialOrder = this.props.record && this.props.record.indexColumns.find(it => it.columnName === record.name);
-                    return <FormItem>
-                        {getFieldDecorator(`number[${record.name}]`, {
-                            initialValue: initialOrder && initialOrder.number,
-                            onChange: this.handleChange,
-                            rules: [{
-                                required: true, message: '必填项！'
-                            }
+                return <FormItem>
+                    {getFieldDecorator(`number[${record.name}]`, {
+                        initialValue: initialOrder && initialOrder.number,
+                        onChange: this.handleChange,
+                        rules: [{
+                            required: true, message: '必填项！'
+                        }
 
-                            ]
-                        })(
-                            <InputNumber
-                                style={{width: 100}}
-                            />
-                        )}
+                        ]
+                    })(
+                        <InputNumber
+                            style={{width: 120}}
+                            min={1}
+                            placeholder='请输入正整数'
+                        />
+                    )}
 
-                    </FormItem>
+                </FormItem>
 
             }
         }, {

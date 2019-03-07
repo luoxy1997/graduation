@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, Table, Divider, Row, Col, Popconfirm, Pagination} from 'antd';
+import {Form, Input, Button, Table, Divider, Row, Col, Pagination} from 'antd';
 import PageContent from '../../layouts/page-content';
 import './style.less';
 import ImportTable from './ImportTable';

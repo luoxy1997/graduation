@@ -161,7 +161,7 @@ export default class IndexModal extends Component {
                             required: true, message: '必填项!',
                         }],
                     })(
-                        <InputNumber style={{width: 100}}/>
+                        <InputNumber min={1}  placeholder='请输入正整数'  />
                     )}
                 </FormItem>)
             }
