@@ -109,6 +109,7 @@ export default class IndexItem extends Component {
 
     render() {
         const {visible, dataSource} = this.state;
+
         const columns = [{
             title: '索引名称',
             dataIndex: 'name',
@@ -130,6 +131,7 @@ export default class IndexItem extends Component {
         }, {
             title: '操作',
             render: (record) => {
+                console.log(record,"record123")
                 return (
                     <span>
                         <a onClick={() => {
@@ -172,7 +174,7 @@ export default class IndexItem extends Component {
                     title={this.state.record ? "修改" : "添加"}
                     onOk={this.onOk}
                     record={this.state.record}
-                    dataSource={this.state.indexTableConfig}    //索引的列colums
+                    dataSource={this.state.indexTableConfig}  //索引的列colums
                     tableId={this.props.tableId}
                 >
                 </IndexEditModal>
