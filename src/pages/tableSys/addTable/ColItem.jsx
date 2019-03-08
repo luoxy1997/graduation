@@ -83,8 +83,6 @@ export default class ColItem extends Component {
                     this.sendData();
                 })
 
-
-
             }
 
         });
@@ -142,12 +140,17 @@ export default class ColItem extends Component {
         }, {
             title: '主键',
             dataIndex: 'primaryKey',
+            render: text => text ? 'Y':'N'
         }, {
             title: 'Not Null',
             dataIndex: 'notNull',
+            render: text => text ? 'Y':'N'
+
         }, {
             title: '自增',
             dataIndex: 'autoincrement',
+            render: text => text ? 'Y':'N'
+
         }, {
             title: '默认值',
             dataIndex: 'defaultValue',
@@ -168,10 +171,13 @@ export default class ColItem extends Component {
             }
         }];
         let isFunction = this.state.record && this.state.record.defaultValueIsFunc;
+        console.log(isFunction,'log');
+
         const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
+        console.log(defaultValueIsFunc,'de');
         if (defaultValueIsFunc === true) isFunction = true;
         if (defaultValueIsFunc === false) isFunction = false;
-        const defaultValue = record && record.defaultValue
+        const defaultValue = record && record.defaultValue;
         const item = isFunction ?
             <FormItem label="默认值" {...formItemLayout}>
                 {getFieldDecorator('defaultValue', {
@@ -331,8 +337,8 @@ export default class ColItem extends Component {
                                         }]
                                     })(
                                         <Radio.Group buttonStyle="solid">
-                                            <Radio.Button value="0">是</Radio.Button>
-                                            <Radio.Button value="1">否</Radio.Button>
+                                            <Radio.Button value="1">是</Radio.Button>
+                                            <Radio.Button value="0">否</Radio.Button>
 
                                         </Radio.Group>
                                     )}

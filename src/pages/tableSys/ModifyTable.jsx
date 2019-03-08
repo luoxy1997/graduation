@@ -15,27 +15,32 @@ export const PAGE_ROUTE = '/modifyTable';
 @Form.create()
 
 export default class ModifyTable extends Component {
+    state = {
+        btnLoading: false,
+    };
 
-  saveBtn = () => {
-      const successTip = '保存成功';
-      this.props.form.validateFields((err, values) => {
-          if (!err) {
-              this.props.ajax.put('/tableinfo', values, {successTip})
-                  .then(res => {
-                      let name = '';
-                      let remark = '';
-                      let id = '';
-                      if (res) {
-                          name = res.name || '';
-                          remark = res.remark || '';
-                          id = res.remark || '';
-                      }
-                      this.setState({name, remark, id});
-                  })
-          }
-      });
+    saveBtn = () => {
+        this.setState({
+            btnLoading: true,
+        });
+        const successTip = '保存成功,请3s之后继续保存';
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                this.props.ajax.put('/tableinfo', values, {successTip})
+                    .then(() => {
+                        this.setState({
+                            btnLoading: false,
+                        });
+                    })
+                    .finally(()=>{
+                        this.setState({
+                            btnLoading: false,
+                        });
+                    })
+            }
+        });
 
-}
+    };
 
     render() {
         const {getFieldDecorator} = this.props.form;
@@ -52,8 +57,8 @@ export default class ModifyTable extends Component {
 
         return (
             <PageContent>
-                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20 }}>
-                    <div style={{float: 'left', background: '#1890ff', height:28, width: 5, marginRight: 5}}></div>
+                <div style={{fontWeight: 'bold', fontSize: '18px', paddingBottom: 20}}>
+                    <div style={{float: 'left', background: '#1890ff', height: 28, width: 5, marginRight: 5}}></div>
                     <Icon type="setting" style={{marginRight: 5}}/>
                     修改表配置
                 </div>
@@ -92,20 +97,22 @@ export default class ModifyTable extends Component {
                             </FormItem>
                         </Col>
                         <Col style={{marginTop: 4}}>
-                        <Button
-                            type="primary"
-                            onClick={this.saveBtn} >保存</Button>
+                            <Button
+                                type="primary"
+                                onClick={this.saveBtn}
+                                loading={this.state.btnLoading}
+                            >保存</Button>
                         </Col>
                     </Row>
 
                 </Form>
 
                 <Tabs type="card">
-                    <TabPane tab="列管理" key="1" >
-                        <ColItem tableId={this.props.location.state.id} />
+                    <TabPane tab="列管理" key="1">
+                        <ColItem tableId={this.props.location.state.id}/>
                     </TabPane>
                     <TabPane tab="索引管理" key="2">
-                        <IndexItem tableId={this.props.location.state.id} />
+                        <IndexItem tableId={this.props.location.state.id}/>
                     </TabPane>
                     <TabPane tab="初始化数据管理" key="3" tableId={this.props.location.state.id}>
                         <InitialItem tableId={this.props.location.state.id}/>

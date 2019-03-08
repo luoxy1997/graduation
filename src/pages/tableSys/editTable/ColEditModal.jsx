@@ -53,6 +53,9 @@ export default class ColEditModal extends Component {
         let isFunction = record && record.defaultValueIsFunc;
         const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
         const defaultValue = record && record.defaultValue;
+        //defaultValue是从表单中收集的数据
+        //当修改时，defaultValue获取的值是undefined,isFunction决定回显input类型
+        //当新增的时候，defaultValueIsFunc决定回显input类型
 
         if (defaultValueIsFunc === true) isFunction = true;
 

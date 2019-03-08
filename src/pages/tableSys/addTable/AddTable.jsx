@@ -64,7 +64,7 @@ export default class AddTable extends Component {
         this.props.form.validateFieldsAndScroll((err, value) => {
 
             if (!err) {
-                const {indexData, colData} = this.state
+                const {indexData, colData} = this.state;
                 const params = {
                     columns: colData,
                     indecies: indexData,
@@ -72,8 +72,8 @@ export default class AddTable extends Component {
                 };
                 this.props.ajax.post('/tableinfo', params)
                     .then(() => {
-                        notify('success','添加表成功!');
-                      this.props.history.push('/tableSys');
+                        notify('success', '添加表成功!');
+                        this.props.history.push('/tableSys');
 
                     })
 
@@ -151,7 +151,7 @@ export default class AddTable extends Component {
                     </Row>
                 </Form>
 
-                <Tabs type="card" style={{marginBottom:'20px'}}>
+                <Tabs type="card" style={{marginBottom: '20px'}}>
                     <TabPane tab="列管理" key="1">
                         <ColItem fetchCol={this.fetchCol}/>
                     </TabPane>

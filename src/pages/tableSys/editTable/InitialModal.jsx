@@ -28,7 +28,6 @@ export default class InitialModal extends Component {
                 if(record){
                     feildsValue.forEach(item => delete item.columnId);
                     result = {columns: feildsValue, initRowId: Number(record.rowId)};
-                    console.log(result,'result');
                     this.props.ajax.put('/init',result)
                         .then(() => {
                             notify('success','修改初始化数据成功');

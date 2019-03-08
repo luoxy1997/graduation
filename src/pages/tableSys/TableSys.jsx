@@ -16,13 +16,13 @@ const confirm = Modal.confirm;
 export default class SchemaSys extends Component {
     state = {
         importVisible: false,   //导入数据框
-        addVisible: false,  //新增框
-        sqlVisible: false,  //sql详情框
-        record: null,
-        pageNum: 1,
+        addVisible: false,      //新增框
+        sqlVisible: false,      //sql详情框
+        record: null,           //表格中每一行数据
+        dataSource: [],
+        tableLoading: true,     //表格loading
+        pageNum: 1,             //分页有关配置
         pageSize: 10,
-        data:[],
-        loading:false,
         total: 0,
 
     };
@@ -31,22 +31,9 @@ export default class SchemaSys extends Component {
         this.search();
     }
 
-    // //气泡确认框确认删除
-    // confirm = (record) => {
-    //     const {appName} = record;
-    //     const {id} = record;
-    //     const successTip = `删除“${appName}”成功！`;
-    //     this.props.ajax.del(`/tableinfo/${id}`, null, {successTip})
-    //         .then(() => {
-    //                 this.search({pageNum: 1, pageSize: this.state.pageSize});
-    //             const data = this.state.dataSource.filter(item => item.id !== id);
-    //             this.setState({data});
-    //             }
-    //         );
-    // };
-
-   //气泡确认框确认删除(修改统一)
+    //气泡确认框确认删除(修改统一)
     handleDelete = (record) => {
+        this.setState({tableLoading:true});
         const {appName} = record;
         const {id} = record;
         const successTip = `删除“${appName}”成功！`;
@@ -55,8 +42,8 @@ export default class SchemaSys extends Component {
             onOk: () => {
                 this.props.ajax.del(`/tableinfo/${id}`, null, {successTip})
                     .then(() => {
-                        const data = this.state.dataSource.filter(item => item.id !== id);
-                        this.setState({data});
+                       this.search();
+                       this.setState({tableLoading:false,});
                     });
 
             },
@@ -65,14 +52,11 @@ export default class SchemaSys extends Component {
 
     //导入库从子页面传来的保存按纽值
     onOk = (value) => {
-        const {loading} = this.state;
-        if (loading) return;
-        this.setState({loading: true});
-        this.props.ajax.post('/import/table', value,{successTip:'导入数据成功'})
+        this.props.ajax.post('/import/table', value, {successTip: '导入数据成功'})
             .then(() => {
                 this.setState({importVisible: false});
             })
-            .catch(() => this.setState({importVisible: true,loading:false}))
+            .catch(() => this.setState({importVisible: true, loading: false}))
             .finally(() => this.setState({loading: false}));
     };
 
@@ -80,10 +64,11 @@ export default class SchemaSys extends Component {
     importModal = () => {
         this.setState({importVisible: true});
     };
+
     //修改
     modifyTable = (record) => {
-        const {id,name,remark}= record;
-        this.props.history.push({ pathname:'/modifyTable',state:{id,name,remark} })
+        const {id, name, remark} = record;
+        this.props.history.push({pathname: '/modifyTable', state: {id, name, remark}})
     };
 
     //新增
@@ -102,7 +87,7 @@ export default class SchemaSys extends Component {
     sqlDetails = (record) => {
         const tableId = record.id;
         const schemaId = record.schemaInfo.id;
-        this.props.history.push({pathname: '/modifyLog', state: {tableId,schemaId}});
+        this.props.history.push({pathname: '/modifyLog', state: {tableId, schemaId}});
         this.setState({changeLogVisible: true});
     };
 
@@ -110,17 +95,21 @@ export default class SchemaSys extends Component {
     search = (args = {}) => {
         const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
         const value = this.props.form.getFieldsValue();
-        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`,value)
+        this.props.ajax.get(`/tableinfo?pageNum=${pageNum}&pageSize=${pageSize}`, value)
             .then(res => {
-                const data = res && res.content.length && res.content.map(item => {
+                const dataSource = res && res.content.length && res.content.map(item => {
                     return {schemaName: item.schemaInfo && item.schemaInfo.name, appName: item.schemaInfo && item.schemaInfo.appName, ...item}
                 });
                 this.setState({
-                    data,
+                    dataSource,
                     pageNum: res.number,
                     pageSize: res.size,
-                    total: res.totalElements
+                    total: res.totalElements,
+                    tableLoading: false,
                 })
+            })
+            .finally(()=>{
+                this.setState({tableLoading: false});
             })
 
     };
@@ -135,6 +124,7 @@ export default class SchemaSys extends Component {
 
     render() {
         const {getFieldDecorator} = this.props.form;
+        const {record, pageNum, pageSize, tableLoading, dataSource, total, importVisible, schemaData, sqlVisible} = this.state;
         const columns = [{
             title: '应用名称',
             dataIndex: 'appName',
@@ -151,7 +141,6 @@ export default class SchemaSys extends Component {
             {
                 title: '操作',
                 render: (record) => {
-                    console.log(record,"recordrecord")
                     return (
                         <span>
                         <a onClick={() => {
@@ -183,6 +172,7 @@ export default class SchemaSys extends Component {
                 sm: {span: 16},
             },
         };
+
         return (
             <PageContent>
                 <Form layout="inline"
@@ -253,25 +243,26 @@ export default class SchemaSys extends Component {
 
                 <Table
                     columns={columns}
-                    dataSource={this.state.data}
+                    dataSource={dataSource}
                     styleName="table"
                     rowKey={record => record.id}
                     pagination={false}
+                    loading={tableLoading}
                 />
 
                 <Pagination
-                    current={this.state.pageNum}//当前的页数
-                    total={this.state.total}//接受的总数
-                    pageSize={this.state.pageSize}//一页的条数
+                    current={pageNum}//当前的页数
+                    total={total}//接受的总数
+                    pageSize={pageSize}//一页的条数
                     onChange={this.changePage}//改变页数
                     showQuickJumper//快速跳转
                     style={{textAlign: 'center', marginTop: '20px'}}
                     showTotal={total => `共 ${total}条`}//共多少条
                 />
                 <ImportTable
-                    visible={this.state.importVisible}
+                    visible={importVisible}
                     onOk={this.onOk}
-                    schemaData = {this.state.schemaData}
+                    schemaData={schemaData}
                     onCancel={() => {
                         this.setState({importVisible: false})
                     }}
@@ -279,11 +270,11 @@ export default class SchemaSys extends Component {
 
 
                 <TabSqlDetails
-                    visible={this.state.sqlVisible}
+                    visible={sqlVisible}
                     onCancel={() => {
                         this.setState({sqlVisible: false})
                     }}
-                    record={this.state.record}
+                    record={record}
 
                 />
 

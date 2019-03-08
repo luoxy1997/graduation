@@ -18,7 +18,8 @@ export default class IndexEditModal extends Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.record !== this.props.record) {
+        // 关窗
+        if (nextProps.visible !== this.props.visible) {
             const colName = nextProps.record && nextProps.record.colName && nextProps.record.colName.split(',');
             this.setState({
                 selectedRowKeys: colName,
@@ -48,7 +49,6 @@ export default class IndexEditModal extends Component {
 
         form.validateFieldsAndScroll(fields, (err, values) => {
             if (!err) {
-
                 const data = selectedRowKeys.map(item => {
                     return {
                         columnId: selectedRows.find(it => it.name === item).id,
@@ -83,7 +83,7 @@ export default class IndexEditModal extends Component {
 
     render() {
         const {getFieldDecorator} = this.props.form;
-        const {record, selectedRowKeys} = this.state;
+        const {record,} = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: {span: 24},
@@ -95,7 +95,7 @@ export default class IndexEditModal extends Component {
             },
         };
         const rowSelection = {
-            selectedRowKeys,
+            selectedRowKeys: this.state.selectedRowKeys,
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
                     selectedRowKeys,
@@ -146,8 +146,7 @@ export default class IndexEditModal extends Component {
                         onChange: this.handleChange,
                         rules: [{
                             required: true, message: '必填项！'
-                        }
-
+                        },
                         ]
                     })(
                         <InputNumber

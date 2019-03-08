@@ -3,11 +3,16 @@ import {Button, Divider, Table, Modal, Form, Pagination} from 'antd';
 import '../style.less';
 import ColEditModal from "./ColEditModal";
 import {ajaxHoc} from "../../../commons/ajax";
+import {connect} from '../../../models';
 
 const confirm = Modal.confirm;
 @ajaxHoc()
 @Form.create()
-
+@connect()
+@connect(state => {
+    const {colData} = state.colData;
+    return {colData};
+})
 export default class ColItem extends Component {
     state = {
         colVisible: false,
@@ -26,15 +31,22 @@ export default class ColItem extends Component {
         const tableId = {tableId: this.props.tableId};
         this.props.ajax.get(`/columninfo?pageNum=${pageNum}&pageSize=${pageSize}`, tableId)
             .then(res => {
-                let total = 0;
-                let dataSource = [];
-                let pageNum = this.state.pageNum;
                 if (res) {
-                    total = res.totalElements || 0;
-                    dataSource = res.content || [];
-                    pageNum = res.number;
+                    const total = res.totalElements || 0;
+                    const dataSource = res.content || [];
+                    const pageNum = res.number;
+                    this.setState({total, dataSource, pageNum});
+                    //构造初始化数据所table所需要的列，发送redux
+                    const columns = res.content.map(item => {
+                            return {
+                                title: item.name,
+                                dataIndex: item.id
+                            }
+                        }
+                    );
+                    this.props.action.colData.setColData(columns);
                 }
-                this.setState({total, dataSource, pageNum});
+
             })
             .finally(() => this.setState({loading: false}));
 
@@ -75,6 +87,7 @@ export default class ColItem extends Component {
                     .then(() => {
                         const dataSource = this.state.dataSource.filter(item => item.id !== id);
                         this.setState({dataSource});
+                        this.search();
                     });
 
             },

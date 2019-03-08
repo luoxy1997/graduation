@@ -4,10 +4,18 @@ import InitialModal from './InitialModal';
 import '../style.less';
 import {Form} from "antd/lib/index";
 import {ajaxHoc} from "../../../commons/ajax";
+import {connect} from "../../../models";
 
+const uuid = require('uuid/v1');
 const confirm = Modal.confirm;
+
 @ajaxHoc()
 @Form.create()
+@connect()
+@connect(state => {
+    const {colData} = state.colData;
+    return {colData};
+})
 export default class InitialItem extends Component {
     state = {
         visible: false,
@@ -21,6 +29,7 @@ export default class InitialItem extends Component {
         modalData: [],//弹框所需要的dataSource
     };
 
+    // TODO
     componentWillMount() {
         this.search();
     }
@@ -53,27 +62,6 @@ export default class InitialItem extends Component {
             .then(res => {
                 if (res) {
                     if (res) {
-                        const columns = res.content.map(item => {
-                                return {
-                                    title: item.name,
-                                    dataIndex: item.id
-                                }
-                            }
-                        );
-                        columns.push({
-                            title: '操作',
-                            render: (record) => {
-                                return (
-                                    <span>
-                                    <a onClick={() => {
-                                        this.addData(record)
-                                    }}>修改</a>
-                                    <Divider type="vertical"/>
-                                        <a onClick={() => this.handleDelete(record)}>删除</a>
-                                </span>)
-                            }
-
-                        });
                         const modalData = res.content.map(item => {
                             return {
                                 name: item.name,
@@ -81,9 +69,8 @@ export default class InitialItem extends Component {
                             }
                         });
                         this.setState({
-                            columns,
                             modalData,
-                            pageSize: (columns.length - 1) * 10 || 10
+                            pageSize: modalData.length * 10 || 10
                         }, () => this.dataSourceInit({}))
                     }
 
@@ -110,6 +97,7 @@ export default class InitialItem extends Component {
                 });
                 //将对象转化为数组 数组格式是：[0:[{},{},{}],1:[{},{},{}]]
                 const dataList = Object.keys(obj).map(key => obj[key]);
+                console.log(dataList,'LOG');
                 //编辑数组，将每个对象中的columnId作为键名，value作为值
                 const dataSource = dataList.map(item => {
                         let obj = {};
@@ -120,13 +108,14 @@ export default class InitialItem extends Component {
                         return obj;
                     }
                 );
-                dataSource.forEach((item,order) =>{
-                    const rowId = Object.keys(obj).find((it,index) =>
+                dataSource.forEach((item, order) => {
+                    const rowId = Object.keys(obj).find((it, index) =>
                         order === index
                     );
                     item[`rowId`] = rowId;
                 });
-                const total = res.totalElements / this.state.pageSize * 10;
+                console.log(dataList[0][0].row,'lllll');
+                const total = dataList[0][0].row;
                 this.setState({
                     dataSource,
                     total,
@@ -161,6 +150,24 @@ export default class InitialItem extends Component {
 
     render() {
         const {visible, dataSource} = this.state;
+        const {colData} = this.props;
+        let columns = colData.map(item => item);
+        columns.push({
+            title: '操作',
+            render: (record) => {
+                return (
+                    <span>
+                                    <a onClick={() => {
+                                        this.addData(record)
+                                    }}>修改</a>
+                                    <Divider type="vertical"/>
+                                        <a onClick={() => this.handleDelete(record)}>删除</a>
+                                </span>)
+            }
+
+        });
+
+
         return (
             <div>
                 <div style={{float: 'right', paddingRight: 20, marginTop: '-30px', marginBottom: '20px'}}>
@@ -168,9 +175,10 @@ export default class InitialItem extends Component {
                 </div>
                 <Table
                     dataSource={dataSource}
-                    columns={this.state.columns}
+                    columns={columns}
                     styleName="table"
                     pagination={false}
+                    rowKey={() => uuid()}
                 />
                 <Pagination
                     current={this.state.pageNum}//当前的页数
@@ -180,6 +188,7 @@ export default class InitialItem extends Component {
                     showQuickJumper//快速跳转
                     style={{textAlign: 'center', marginTop: '20px'}}
                     showTotal={total => `共 ${total}条`}//共多少条
+
                 />
                 <InitialModal
                     visible={visible}
