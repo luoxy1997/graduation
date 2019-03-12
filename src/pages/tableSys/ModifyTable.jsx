@@ -101,7 +101,14 @@ export default class ModifyTable extends Component {
                                 type="primary"
                                 onClick={this.saveBtn}
                                 loading={this.state.btnLoading}
+                                style={{marginRight:'30px'}}
                             >保存</Button>
+                            <Button
+                                type="primary"
+                                ghost
+                                onClick={() => this.props.history.push('/tableSys')}
+                            >返回表管理界面</Button>
+
                         </Col>
                     </Row>
 

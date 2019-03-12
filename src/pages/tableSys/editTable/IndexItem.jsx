@@ -19,6 +19,7 @@ export default class IndexItem extends Component {
         pageSize: 10,
         total: 0,
         indexTableConfig: [],//索引管理动态列数据
+        loading: true
     };
 
     search = (args = {}) => {
@@ -37,7 +38,7 @@ export default class IndexItem extends Component {
                     );
                     total = res.totalElements || 0;
                     pageNum = res.number;
-                    this.setState({total, dataSource: result, pageNum});
+                    this.setState({total, dataSource: result, pageNum,loading: false});
                 }
 
             })
@@ -72,8 +73,7 @@ export default class IndexItem extends Component {
                         indexTableConfig,
                     })
                 }
-            })
-            .finally(() => this.setState({loading: false}));
+            });
         const id = record.id;
         this.setState({
             visible: true,
@@ -95,31 +95,40 @@ export default class IndexItem extends Component {
     handleDelete = (record) => {
         const {name, id} = record;
         const successTip = `删除“${name}”成功！`;
+        this.setState({loading: true});
         confirm({
             title: `您确定要删除“${name}”？`,
             onOk: () => {
                 this.props.ajax.del(`/indexinfo/${id}`, null, {successTip})
                     .then(() => {
                         const dataSource = this.state.dataSource.filter(item => item.id !== id);
-                        this.setState({dataSource});
-                    });
+                        this.setState({dataSource,loading: false});
+                        this.search({pageNum:1});
+                    })
+                    .catch(() => this.setState({loading: false}))
             },
+            onCancel:()=>{
+                this.setState({loading: false})
+            }
         });
     };
 
     render() {
-        const {visible, dataSource} = this.state;
+        const {visible, dataSource, loading} = this.state;
 
         const columns = [{
             title: '索引名称',
             dataIndex: 'name',
+            align: 'center',
         }, {
             title: '索引类型',
             dataIndex: 'type',
+            align: 'center',
             render: text => text === 0? '非唯一' : '唯一'
         }, {
             title: '列',
             dataIndex: 'colName',
+            align: 'center',
             render: text => {
                 const result = text.split(",");
                 const colName = result.map((item, index) => {
@@ -130,8 +139,8 @@ export default class IndexItem extends Component {
 
         }, {
             title: '操作',
+            align: 'center',
             render: (record) => {
-                console.log(record,"record123")
                 return (
                     <span>
                         <a onClick={() => {
@@ -156,6 +165,7 @@ export default class IndexItem extends Component {
                     styleName="table"
                     rowKey={record => record.id}
                     pagination={false}
+                    loading={loading}
                 />
                 <Pagination
                     current={this.state.pageNum}//当前的页数

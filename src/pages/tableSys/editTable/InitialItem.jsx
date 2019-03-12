@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Divider, Table, Pagination, Modal} from 'antd';
+import {Button, Divider, Table, Modal} from 'antd';
 import InitialModal from './InitialModal';
 import '../style.less';
 import {Form} from "antd/lib/index";
@@ -23,42 +23,19 @@ export default class InitialItem extends Component {
         pageSize: 10,
         total: 0,
         dataSource: [],
-        loading: false,
+        loading: true,
         record: null,
         columns: [], //动态的columns
         modalData: [],//弹框所需要的dataSource
     };
 
-    // TODO
     componentWillMount() {
         this.search();
     }
 
-    onOk = () => {
-        this.search();
-        this.setState({
-            visible: false,
-        })
-    };
-    //通过行id删除初始化数据
-    handleDelete = (record) => {
-        const {rowId} = record;
-        const successTip = `删除成功！`;
-        confirm({
-            title: `您确定要删除这条初始化数据？`,
-            onOk: () => {
-                this.props.ajax.del(`/init/${rowId}`, null, {successTip})
-                    .then(() => {
-                        this.search({pageSize: this.state.page, pageNum: 1});
-                        this.search();
-                    });
-            },
-        });
-    };
-
     search = () => {
         //查询出动态的列
-        this.props.ajax.get(`/columninfo?&&pageSize=9999`, {tableId: this.props.tableId})
+        this.props.ajax.get(`/columninfo?pageSize=9999`, {tableId: this.props.tableId})
             .then(res => {
                 if (res) {
                     if (res) {
@@ -70,7 +47,6 @@ export default class InitialItem extends Component {
                         });
                         this.setState({
                             modalData,
-                            pageSize: modalData.length * 10 || 10
                         }, () => this.dataSourceInit({}))
                     }
 
@@ -79,11 +55,36 @@ export default class InitialItem extends Component {
 
 
     };
+
+    onOk = () => {
+        this.search({pageSize: 10, pageNum: 1});
+        this.setState({
+            visible: false,
+        })
+    };
+    //通过行id删除初始化数据
+    handleDelete = (record) => {
+        this.setState({loading: true});
+        const {rowId} = record;
+        const successTip = `删除成功！`;
+        confirm({
+            title: `您确定要删除这条初始化数据？`,
+            onOk: () => {
+                this.props.ajax.del(`/init/${rowId}`, null, {successTip})
+                    .then(() => {
+                        this.search({pageSize: this.state.page, pageNum: 1, loading: false});
+                    })
+                    .catch(() => this.setState({loading: false}))
+            },
+        });
+    };
+
+
     dataSourceInit = (args = {}) => {
         //查询出数据，构造成DataSource
-        const {pageNum = this.state.pageNum, pageSize = this.state.pageSize} = args;
+        const {pageNum = this.state.pageNum} = args;
         const tableId = this.props.tableId;
-        this.props.ajax.get(`/init/${tableId}?pageSize=${pageSize}&&pageNum=${pageNum}`)
+        this.props.ajax.get(`/init/${tableId}?pageSize=999999&&pageNum=${pageNum}`)
             .then(res => {
                 let obj = {};
                 //将相同initRow的对象分类到一个、对象当中 obj格式是[initRow:[{},{},{}],initRow:[{},{},{}]]
@@ -97,7 +98,6 @@ export default class InitialItem extends Component {
                 });
                 //将对象转化为数组 数组格式是：[0:[{},{},{}],1:[{},{},{}]]
                 const dataList = Object.keys(obj).map(key => obj[key]);
-                console.log(dataList,'LOG');
                 //编辑数组，将每个对象中的columnId作为键名，value作为值
                 const dataSource = dataList.map(item => {
                         let obj = {};
@@ -114,8 +114,7 @@ export default class InitialItem extends Component {
                     );
                     item[`rowId`] = rowId;
                 });
-                console.log(dataList[0][0].row,'lllll');
-                const total = dataList[0][0].row;
+                const total = dataList[0] && dataList[0][0].row;
                 this.setState({
                     dataSource,
                     total,
@@ -124,14 +123,6 @@ export default class InitialItem extends Component {
 
             })
             .finally(() => this.setState({loading: false}));
-    };
-
-    // 默认获取数据分页
-    changePage = (pageNum) => {
-        //塞数据
-        this.setState({pageNum: pageNum});
-        //塞数据后立即执行函数并使用数据时，会产生异步，此时我们获取不到最新的值，所以我们这个时候传参
-        this.dataSourceInit({pageNum: pageNum, pageSize: this.state.pageSize});
     };
 
 
@@ -149,11 +140,12 @@ export default class InitialItem extends Component {
     };
 
     render() {
-        const {visible, dataSource} = this.state;
+        const {visible, dataSource, loading} = this.state;
         const {colData} = this.props;
         let columns = colData.map(item => item);
         columns.push({
             title: '操作',
+            width: '400px',
             render: (record) => {
                 return (
                     <span>
@@ -177,19 +169,15 @@ export default class InitialItem extends Component {
                     dataSource={dataSource}
                     columns={columns}
                     styleName="table"
-                    pagination={false}
                     rowKey={() => uuid()}
+                    loading={loading}
+                    pagination={{
+                        pageSize:10,
+                        showTotal:()=> `共${this.state.total}条`,
+                        style:{marginRight:'45%'}
+                    }}
                 />
-                <Pagination
-                    current={this.state.pageNum}//当前的页数
-                    total={this.state.total}//接受的总数
-                    pageSize={10}//一页的条数
-                    onChange={this.changePage}//改变页数
-                    showQuickJumper//快速跳转
-                    style={{textAlign: 'center', marginTop: '20px'}}
-                    showTotal={total => `共 ${total}条`}//共多少条
 
-                />
                 <InitialModal
                     visible={visible}
                     onCancel={() => {

@@ -6,11 +6,11 @@ import moment from 'moment';
 import {Modal} from "antd/lib/index";
 
 const confirm = Modal.confirm;
-export const PAGE_ROUTE = '/modifyLog';
+export const PAGE_ROUTE = '/modifySchemaLog';
 
 
 @Form.create()
-export default class ModifyLog extends Component {
+export default class ModifySchemaLog extends Component {
     state = {
         visible: false,
         sqlDescVisible: false,
@@ -32,7 +32,7 @@ export default class ModifyLog extends Component {
     search = (args = {}) => {
         const id = this.props.location.state;
         const {pageSize = this.state.pageSize, pageNum = this.state.pageNum} = args;
-        this.props.ajax.get(`/changelog?pageNum=${pageNum}&&pageSize=${pageSize}`, id)
+        this.props.ajax.get(`/changelog?pageNum=${pageNum}&&pageSize=${pageSize}`,{schemaId: id})
             .then(res => {
                 if (res) {
                     this.setState({
@@ -70,7 +70,6 @@ export default class ModifyLog extends Component {
                         this.setState({dataSource, loading: false},this.search);
                     })
                     .catch(() => this.setState({loading: false}))
-                    .finally(() => this.setState({loading: false}))
 
             },
             onCancel:()=>{this.setState({loading: false})}

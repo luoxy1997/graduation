@@ -41,7 +41,7 @@ export default class IndexEditModal extends Component {
             'remark'
         ];
         //动态添加要校验的内容
-        selectedRowKeys.forEach(item => {
+        selectedRowKeys && selectedRowKeys.forEach(item => {
 
             fields.push(`number[${item}]`);
             fields.push(`order[${item}]`);
@@ -49,7 +49,7 @@ export default class IndexEditModal extends Component {
 
         form.validateFieldsAndScroll(fields, (err, values) => {
             if (!err) {
-                const data = selectedRowKeys.map(item => {
+                const data = selectedRowKeys && selectedRowKeys.map(item => {
                     return {
                         columnId: selectedRows.find(it => it.name === item).id,
                         order: values.order[item],
@@ -59,22 +59,27 @@ export default class IndexEditModal extends Component {
                 delete values.order;
                 delete values.number;
                 let result;
-
-                if (record) {
-                    result = {...values, columns: data, id: this.props.record.id};
-                    this.props.ajax.put(`/indexinfo`, result)
-                        .then(() => {
-                            notify('success', '索引信息修改成功');
-                            onOk(result);
-                        });
-                } else {
-                    result = {...values, columns: data, tableId: this.props.tableId};
-                    this.props.ajax.post(`/indexinfo`, [result])
-                        .then(() => {
-                            notify('success', '索引信息添加成功');
-                            onOk(result);
-                        });
+                if(selectedRowKeys){
+                    if (record) {
+                        result = {...values, columns: data, id: this.props.record.id};
+                        this.props.ajax.put(`/indexinfo`, result)
+                            .then(() => {
+                                notify('success', '索引信息修改成功');
+                                onOk(result);
+                            });
+                    } else {
+                        result = {...values, columns: data, tableId: this.props.tableId};
+                        this.props.ajax.post(`/indexinfo`, [result])
+                            .then(() => {
+                                notify('success', '索引信息添加成功');
+                                onOk(result);
+                            });
+                    }
+                }else{
+                    notify('error','操作失败，至少选择一个配置项！')
                 }
+
+
 
 
             }

@@ -25,6 +25,7 @@ export default class SchemaSys extends Component {
         loading: false,
         id: "",
         display: 'none',
+        tableLoading: true,
     };
 
     componentWillMount() {
@@ -45,10 +46,10 @@ export default class SchemaSys extends Component {
                             total = res.totalElements || 0;
                             dataSource = res.content || [];
                             pageNum = res.number;
+                            this.setState({total, dataSource, pageNum, tableLoading: false});
                         }
-                        this.setState({total, dataSource, pageNum});
                     })
-                    .finally(() => this.setState({loading: false}));
+                    .finally(() => this.setState({loading: false, tableLoading: false}));
             }
         });
     };
@@ -80,18 +81,18 @@ export default class SchemaSys extends Component {
     };
 
     onOk = (values) => {
-        const {loading} = this.state;
-        const {record} = this.state;
+        const {loading,record} = this.state;
+        this.setState({ tableLoading: true});
         const submitAjax = record ? this.props.ajax.put : this.props.ajax.post;
         const url = `/schemainfo`;
         const successTip = record ? '修改成功' : '添加成功';
         if (loading) return;
         submitAjax(url, values, {successTip})
-            .then(res => {
-                this.setState({visible: false});
+            .then(() => {
+                this.setState({visible: false, tableLoading: false});
                 this.search({pageNum: 1})
             })
-            .catch(() => this.setState({visible: true, loading: false}));
+            .catch(() => this.setState({visible: true, loading: false, tableLoading: false}));
 
     };
 
@@ -103,28 +104,40 @@ export default class SchemaSys extends Component {
         });
     };
 
+    //修改日志
+    modifyLog = (record) => {
+        const id = record.id;
+        this.props.history.push({pathname: '/modifySchemaLog', state: id});
+        this.setState({changeLogVisible: true});
+    };
+
     importData = () => {
         this.props.history.push('/ImportEdit')
 
     };
 
     render() {
-        const {importVisible, visible, sqlVisible, dataSource, display} = this.state;
+        const {importVisible, visible, sqlVisible, dataSource, display, tableLoading} = this.state;
         const {getFieldDecorator} = this.props.form;
         const columns = [{
             title: '应用',
             dataIndex: 'appName',
             key: 'appName',
+            align:'center'
         }, {
             title: 'schema',
             dataIndex: 'name',
             key: 'name',
+            align:'center'
+
         }, {
             title: '备注说明',
             dataIndex: 'remark',
             key: 'remark',
+            align:'center'
         }, {
             title: '操作',
+            align:'center',
             render: (record) => {
                 return (
                     <span>
@@ -135,6 +148,10 @@ export default class SchemaSys extends Component {
                         <a onClick={() => {
                             this.sqlModal(record)
                         }}>查看SQL</a>
+                        <Divider type="vertical"/>
+                        <a onClick={() => {
+                            this.modifyLog(record)
+                        }}>修改日志</a>
                     </span>)
             }
         },];
@@ -208,7 +225,7 @@ export default class SchemaSys extends Component {
                         </Col>
                     </Row>
                 </Form>
-                <Table columns={columns} dataSource={dataSource} styleName='table' pagination={false} rowKey={(record) => record.id}/>
+                <Table columns={columns} dataSource={dataSource} styleName='table' pagination={false} rowKey={(record) => record.id} loading={tableLoading}/>
                 <Pagination
                     current={this.state.pageNum}//当前的页数
                     total={this.state.total}//接受的总数
@@ -244,6 +261,7 @@ export default class SchemaSys extends Component {
                         this.setState({sqlVisible: false})
                     }}
                 />
+
             </PageContent>
         );
     }

@@ -22,7 +22,7 @@ export default class ColItem extends Component {
         pageSize: 10,
         total: 0,
         dataSource: [],
-        loading: false,
+        loading: true,
     };
 
 
@@ -35,12 +35,22 @@ export default class ColItem extends Component {
                     const total = res.totalElements || 0;
                     const dataSource = res.content || [];
                     const pageNum = res.number;
-                    this.setState({total, dataSource, pageNum});
+                    this.setState({total, dataSource, pageNum, loading: false});
+
+                }
+
+            })
+            .finally(() => this.setState({loading: false}));
+        //查询出所有的列，发送redux
+        this.props.ajax.get(`/columninfo?pageSize=9999`, tableId)
+            .then(res => {
+                if (res) {
                     //构造初始化数据所table所需要的列，发送redux
                     const columns = res.content.map(item => {
                             return {
                                 title: item.name,
-                                dataIndex: item.id
+                                dataIndex: item.id,
+                                width:'250px'
                             }
                         }
                     );
@@ -48,7 +58,6 @@ export default class ColItem extends Component {
                 }
 
             })
-            .finally(() => this.setState({loading: false}));
 
     };
 
@@ -80,31 +89,40 @@ export default class ColItem extends Component {
     handleDelete = (record) => {
         const {name, id} = record;
         const successTip = `删除“${name}”成功！`;
+        this.setState({loading: true});
         confirm({
             title: `您确定要删除“${name}”？`,
             onOk: () => {
                 this.props.ajax.del(`/columninfo/${id}`, null, {successTip})
                     .then(() => {
                         const dataSource = this.state.dataSource.filter(item => item.id !== id);
-                        this.setState({dataSource});
-                        this.search();
-                    });
+                        this.setState({dataSource,loading: false});
+                        this.search({pageNum: 1, pageSize: this.state.pageSize, });
+                    })
+                    .catch(() => {
+                        this.setState({
+                            loading: false
+                        });
+                    })
 
             },
+            onCancel:() => {
+                this.setState({
+                    loading: false
+                });
+            }
         });
     };
 
     handleOk = (values) => {
-        const {loading} = this.state;
         const {record} = this.state;
         const submitAjax = record ? this.props.ajax.put : this.props.ajax.post;
         const url = '/columninfo';
         const successTip = record ? '修改成功' : '添加成功';
-        if (loading) return;
         this.setState({loading: true});
         submitAjax(url, values, {successTip})
-            .then(res => {
-                this.setState({colVisible: false});
+            .then(() => {
+                this.setState({colVisible: false, loading: false});
                 this.search({pageNum: 1})
             })
             .finally(() => this.setState({loading: false}));
@@ -112,46 +130,55 @@ export default class ColItem extends Component {
 
 
     render() {
-        const {record, dataSource} = this.state;
+        const {record, dataSource, loading} = this.state;
 
         const columns = [{
             title: '列名',
             dataIndex: 'name',
-            key: 'name'
+            key: 'name',
+            align: 'center'
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
+            align: 'center'
         }, {
             title: '长度',
             dataIndex: 'length',
             key: 'length',
+            align: 'center'
         }, {
             title: '主键',
             dataIndex: 'primaryKey',
             key: 'primaryKey',
+            align: 'center',
             render: (text) => text ? "Y" : "N"
         }, {
             title: 'Not Null',
             dataIndex: 'notNull',
             key: 'notNull',
+            align: 'center',
             render: (text) => text ? "Y" : "N"
         }, {
             title: '自增',
             dataIndex: 'autoincrement',
             key: 'autoincrement',
+            align: 'center',
             render: (text) => text ? "Y" : "N"
         }, {
             title: '默认值',
             dataIndex: 'defaultValue',
             key: 'defaultValue',
+            align: 'center',
             render: (text) => text ? "Y" : "N"
         }, {
             title: '备注',
             dataIndex: 'remark',
+            align: 'center',
             key: 'remark',
         }, {
             title: '操作',
+            align: 'center',
             render: (record) => {
                 return (
                     <span>
@@ -178,6 +205,7 @@ export default class ColItem extends Component {
                     styleName="table"
                     rowKey={record => record.id}
                     pagination={false}
+                    loading={loading}
                 />
                 <Pagination
                     current={this.state.pageNum}//当前的页数

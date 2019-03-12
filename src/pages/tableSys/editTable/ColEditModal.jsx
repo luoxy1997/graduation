@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, Row, Col, Form, Input, Button, Radio, Select,} from 'antd';
+import {Modal, Row, Col, Form, Input, Button, Radio, Select, InputNumber} from 'antd';
 import {ajaxHoc} from "../../../commons/ajax";
 
 
@@ -14,14 +14,24 @@ export default class ColEditModal extends Component {
 
     handleOk = (e) => {
         e.preventDefault();
-        const {onOk, form,record} = this.props;
+        const {onOk, form, record} = this.props;
         form.validateFieldsAndScroll((err, value) => {
             if (!err) {
-               const addValues = {...value,tableId: this.props.tableId};
-               const values = record ? value : addValues ;
+                const addValues = {...value, tableId: this.props.tableId};
+                const values = record ? value : addValues;
                 onOk(values);
             }
         });
+    };
+    //长度只允许输入整数
+    validateLength = (rule, value, callback) => {
+        const reg = /^-?[1-9]\d*$/;
+        if(reg.test(value) || value==null){
+            callback();
+        }else {
+            callback('只能输入正整数！');
+        }
+
     };
 
 
@@ -119,7 +129,7 @@ export default class ColEditModal extends Component {
                                     }],
                                     initialValue: record && record.name
                                 })(
-                                    <Input/>
+                                    <Input placeholder="请输入列名"/>
                                 )}
 
                             </FormItem>
@@ -132,7 +142,7 @@ export default class ColEditModal extends Component {
                                     }],
                                     initialValue: record && record.type
                                 })(
-                                    <Select>
+                                    <Select placeholder="请选择类型">
                                         {options.map(
                                             (item, index) => {
                                                 return (
@@ -149,10 +159,15 @@ export default class ColEditModal extends Component {
                         <Col span={12}>
                             <FormItem label="长度" {...formItemLayout}>
                                 {getFieldDecorator('length', {
-                                    initialValue: record && record.length
+                                    initialValue: record && record.length,
+                                    rules:[
+                                        {
+                                            validator: (rule, value, callback) => this.validateLength(rule, value, callback)
+                                        },
+                                    ]
                                 })(
-                                    <Input/>
-                                )}
+                                    <InputNumber placeholder="请输入长度" style={{width: '100%'}}/>
+                                    )}
                             </FormItem>
                         </Col>
                         <Col span={12}>
@@ -170,7 +185,7 @@ export default class ColEditModal extends Component {
                                         }
                                     ]
                                 })(
-                                    <Radio.Group buttonStyle="solid">
+                                    <Radio.Group buttonStyle="solid" placeholder="请选择主键">
                                         <Radio.Button value={1}>是</Radio.Button>
                                         <Radio.Button value={0}>否</Radio.Button>
                                     </Radio.Group>
@@ -185,7 +200,7 @@ export default class ColEditModal extends Component {
                                         this.props.form.setFieldsValue({defaultValue: void 0});
                                     }
                                 })(
-                                    <Radio.Group buttonStyle="solid">
+                                    <Radio.Group buttonStyle="solid" placeholder="是否为函数">
                                         <Radio.Button value={true}>是</Radio.Button>
                                         <Radio.Button value={false}>否</Radio.Button>
                                     </Radio.Group>
@@ -203,7 +218,7 @@ export default class ColEditModal extends Component {
                                     }],
                                     initialValue: record && record.notNull
                                 })(
-                                    <Radio.Group buttonStyle="solid">
+                                    <Radio.Group buttonStyle="solid" placeholder="请选择是否not null">
                                         <Radio.Button value={1}>是</Radio.Button>
                                         <Radio.Button value={0}>否</Radio.Button>
                                     </Radio.Group>
@@ -218,7 +233,7 @@ export default class ColEditModal extends Component {
                                     }],
                                     initialValue: record && record.autoincrement
                                 })(
-                                    <Radio.Group buttonStyle="solid">
+                                    <Radio.Group buttonStyle="solid" placeholder="请选择是否自增">
                                         <Radio.Button value={1}>是</Radio.Button>
                                         <Radio.Button value={0}>否</Radio.Button>
 
@@ -234,7 +249,7 @@ export default class ColEditModal extends Component {
                                 {getFieldDecorator('remark', {
                                     initialValue: record && record.remark
                                 })(
-                                    <TextArea rows={2}/>
+                                    <TextArea rows={2} placeholder="请输入备注"/>
                                 )}
                             </FormItem>
                         </Col>

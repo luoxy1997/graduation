@@ -10,7 +10,7 @@ export default class AddSchema extends Component {
 
     state = {
         newDetails: [{}]
-    }
+    };
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.visible && !this.props.visible) {

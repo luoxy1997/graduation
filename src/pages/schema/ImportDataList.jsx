@@ -15,11 +15,10 @@ export default class ImportDataList extends Component {
 
     handleOk = (e) => {
         e.preventDefault();
-        const {loading,selectedRowKeys} = this.state;
-        const {form,getDataSource,onOk} = this.props;
+        const {selectedRowKeys} = this.state;
+        const {form,getDataSource} = this.props;
         const {driverClassName,password,schemaName,url,username} = getDataSource;
         const original = {driverClassName,password,schemaName,url,username};
-        if (loading) return;
         this.setState({loading: true});
         form.validateFieldsAndScroll((err, values) => {
             if (!err) {
@@ -28,9 +27,12 @@ export default class ImportDataList extends Component {
                 this.props.ajax
                     .post('import/data',values,{successTip:"导入成功"})
                     .then(() => {
-                        onOk && onOk();
+                        this.props.send();
+                        this.setState({loading: false});
                     })
+                    .catch(()=>this.setState({loading: false}))
                     .finally(() => this.setState({loading: false}));
+
             }
         });
     };

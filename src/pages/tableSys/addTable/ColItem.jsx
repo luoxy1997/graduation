@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Divider, Col, Row, Table, Input, Radio, Select, Modal, Form,} from 'antd';
+import {Button, Divider, Col, Row, Table, Input, Radio, Select, Modal, Form, InputNumber} from 'antd';
 import '../style.less';
 import {connect} from '../../../models';
 import notify from '../notify'
@@ -50,6 +50,7 @@ export default class ColItem extends Component {
             this.setState({record: null});
         }
     };
+
 
     //新增/修改/删除时，redux发送数据
     sendData = () => {
@@ -102,6 +103,17 @@ export default class ColItem extends Component {
                 callback('不能建立重复列名');
             }
         }
+    };
+
+    //长度只允许输入整数
+    validateLength = (rule, value, callback) => {
+        const reg = /^-?[1-9]\d*$/;
+        if(reg.test(value) || value==null){
+            callback();
+        }else {
+            callback('只能输入正整数！');
+        }
+
     };
 
     render() {
@@ -171,10 +183,8 @@ export default class ColItem extends Component {
             }
         }];
         let isFunction = this.state.record && this.state.record.defaultValueIsFunc;
-        console.log(isFunction,'log');
 
         const defaultValueIsFunc = this.props.form.getFieldValue('defaultValueIsFunc');
-        console.log(defaultValueIsFunc,'de');
         if (defaultValueIsFunc === true) isFunction = true;
         if (defaultValueIsFunc === false) isFunction = false;
         const defaultValue = record && record.defaultValue;
@@ -252,7 +262,8 @@ export default class ColItem extends Component {
                                             {validator: (rule, value, callback) => this.validateName(rule, value, callback)},
                                         ],
                                     })(
-                                        <Input placeholder="请输入列名"/>
+                                        <Input placeholder="请输入列名" />
+
                                     )}
 
                                 </FormItem>
@@ -282,9 +293,14 @@ export default class ColItem extends Component {
                             <Col span={12}>
                                 <FormItem label="长度" {...formItemLayout}>
                                     {getFieldDecorator('length', {
-                                        initialValue: record && record.length
+                                        initialValue: record && record.length,
+                                        rules:[
+                                            {
+                                                validator: (rule, value, callback) => this.validateLength(rule, value, callback)
+                                            },
+                                        ]
                                     })(
-                                        <Input placeholder="请输入长度"/>
+                                        <InputNumber placeholder="请输入长度" style={{width: '100%'}}/>
                                     )}
                                 </FormItem>
                             </Col>

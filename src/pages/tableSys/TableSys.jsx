@@ -25,6 +25,7 @@ export default class SchemaSys extends Component {
         pageSize: 10,
         total: 0,
 
+
     };
 
     componentWillMount() {
@@ -33,20 +34,26 @@ export default class SchemaSys extends Component {
 
     //气泡确认框确认删除(修改统一)
     handleDelete = (record) => {
-        this.setState({tableLoading:true});
+        this.setState({tableLoading: true});
         const {appName} = record;
         const {id} = record;
         const successTip = `删除“${appName}”成功！`;
         confirm({
+            okText:"确认",
+            cancelText:"取消",
             title: `您确定要删除“${appName}”？`,
             onOk: () => {
                 this.props.ajax.del(`/tableinfo/${id}`, null, {successTip})
                     .then(() => {
-                       this.search();
-                       this.setState({tableLoading:false,});
-                    });
+                        this.search();
+                        this.setState({tableLoading: false,});
+                    })
+                    .catch(() => this.setState({tableLoading: false}))
 
             },
+            onCancel: () => {
+                this.setState({tableLoading: false,});
+            }
         });
     };
 
@@ -58,6 +65,8 @@ export default class SchemaSys extends Component {
             })
             .catch(() => this.setState({importVisible: true, loading: false}))
             .finally(() => this.setState({loading: false}));
+        this.search();
+
     };
 
     //导入库
@@ -86,8 +95,7 @@ export default class SchemaSys extends Component {
     //修改日志
     sqlDetails = (record) => {
         const tableId = record.id;
-        const schemaId = record.schemaInfo.id;
-        this.props.history.push({pathname: '/modifyLog', state: {tableId, schemaId}});
+        this.props.history.push({pathname: '/modifyLog', state: {tableId}});
         this.setState({changeLogVisible: true});
     };
 
@@ -108,7 +116,8 @@ export default class SchemaSys extends Component {
                     tableLoading: false,
                 })
             })
-            .finally(()=>{
+            .catch(() => this.setState({tableLoading: false}))
+            .finally(() => {
                 this.setState({tableLoading: false});
             })
 
@@ -128,18 +137,23 @@ export default class SchemaSys extends Component {
         const columns = [{
             title: '应用名称',
             dataIndex: 'appName',
+            align: 'center'
         }, {
             title: 'schema名称',
             dataIndex: 'schemaName',
+            align: 'center'
         }, {
             title: 'table名称',
             dataIndex: 'name',
+            align: 'center'
         }, {
             title: '备注说明',
             dataIndex: 'remark',
+            align: 'center'
         },
             {
                 title: '操作',
+                align: 'center',
                 render: (record) => {
                     return (
                         <span>
@@ -267,8 +281,6 @@ export default class SchemaSys extends Component {
                         this.setState({importVisible: false})
                     }}
                 />
-
-
                 <TabSqlDetails
                     visible={sqlVisible}
                     onCancel={() => {

@@ -33,10 +33,10 @@ export default class AddTable extends Component {
     componentDidMount() {
         //页面初始化时清空redux中已有的列值
         this.props.action.colData.setData([]);
-        this.props.ajax.get('/schemainfo')
+        this.props.ajax.get('/schemainfo/list')
             .then(res => {
                 res && this.setState({
-                    schemaDesc: res.content
+                    schemaDesc: res
                 })
             })
     }
