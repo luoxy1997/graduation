@@ -1,0 +1,262 @@
+:global {
+    /*课程介绍上半部分*/
+    .course-infos-top {
+        width: 100%;
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .course-infos-top .info-wrap {
+        width: 1152px;
+        margin: 0 auto;
+        padding-top: 72px;
+        padding-bottom: 136px;
+        position: relative;
+        text-align: center;
+    }
+    .course-infos-top .info-wrap .title-box h1, h2 {
+        text-align: center;
+        font-size: 40px;
+        color: #fff;
+        line-height: 48px;
+        text-shadow: 0 2px 4px rgba(28, 31, 33, .6)
+    }
+    .course-infos-top .info-wrap .title-box h2 {
+        font-size: 18px;
+    }
+    .course-infos-top .fixed-wrap {
+        width: 1152px;
+        min-height: 128px;
+        position: absolute;
+        left: 50%;
+        margin-left: -576px;
+        bottom: -64px;
+        background-image: url(./fixed_bg.png);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        border-radius: 18px;
+        box-shadow: 0 8px 16px 0 rgba(28, 31, 33, .1);
+    }
+    .course-infos-top .fixed-wrap .fixed-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 32px 40px;
+        box-sizing: border-box;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .price {
+        float: left;
+        width: 100%;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .price .ori-price {
+        font-size: 32px;
+        color: #f01414;
+        line-height: 32px;
+        font-weight: 700;
+        float: left;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .price .activity {
+        margin-top: 3px;
+        margin-left: 12px;
+        line-height: 14px;
+        padding: 6px 10px;
+        background-color: #6c61d3;
+        background-image: linear-gradient(90deg, #6c61d3 0, #53a0fd 100%);
+        border-radius: 12px;
+        color: white;
+        float: left;
+    }
+
+    .course-infos-top .fixed-wrap .fixed-content .info-bar {
+        margin-top: 12px;
+        float: left;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .info-bar span {
+        font-size: 12px;
+        color: #545c63;
+        line-height: 24px;
+        font-weight: 700;
+        padding-right: 12px;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .info-bar span.details {
+        font-weight: normal;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .info-bar i {
+        padding-right: 12px;
+        font-size: 20px;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .btns {
+        position: absolute;
+        top: 48px;
+        right: 40px;
+        font-size: 0;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .btns .red-btn {
+        background: #f01414;
+        border-radius: 24px;
+        font-size: 16px;
+        color: #fff;
+        letter-spacing: 0;
+        line-height: 24px;
+        font-weight: 700;
+        padding: 14px 48px;
+        transition: all .3s;
+        margin-right: 13px;
+    }
+    .course-infos-top .fixed-wrap .fixed-content .btns .add-chart {
+        background: rgba(240, 20, 20, .1);
+        border-radius: 24px;
+        font-size: 16px;
+        color: #f20d0d;
+        letter-spacing: 0;
+        line-height: 24px;
+        font-weight: 700;
+        padding: 14px 48px;
+        position: relative;
+    }
+
+    /*课程video部分*/
+
+    .info-video {
+        width: 1152px;
+        height: 448px;
+        box-sizing: border-box;
+        margin: 120px auto 48px auto;
+        text-align: left;
+        padding: 64px 0 72px 0;
+        box-shadow: 0 4px 16px 0 rgba(7, 17, 27, .4);
+        border-radius: 16px;
+        display: block;
+        background: #4d4d4d;
+        background-size: cover;
+        background-position: center;
+        background-image: url('./vedioBg.jpg');
+    }
+    .info-video .video-btn{
+        width:96px;
+        margin: 90px 100px 86px 100px;
+        float: left;
+    }
+    .info-video .video-btn .play-btn{
+        color: rgba(255,255,255,.3);
+        font-size:96px;
+        transition: .3s ease;
+    }
+    .info-video .video-btn:hover .play-btn{
+        color: rgba(255,255,255,.7);
+    }
+    .info-video .video-btn p {
+        font-size: 16px;
+        color: #fff;
+        line-height: 24px;
+        text-align: center;
+        margin-top: 12px;
+    }
+
+    .info-video .video-info{
+        width: 564px;
+        height: 100%;
+        float: left;
+        overflow: hidden;
+        box-sizing: border-box;
+
+    }
+    .info-video .video-info .content-wrap{
+        position: relative;
+        overflow: hidden;
+        width: auto;
+        height: 312px;
+        padding-right: 95px;
+    }
+    .info-video .video-info .content-wrap .content{
+        overflow: hidden;
+        width: auto;
+        height: 312px;
+    }
+    .info-video .video-info .content-wrap .content .con{
+        display: table-cell;
+        vertical-align: middle;
+    }
+    .info-video .video-info .content-wrap .content .con .info-name{
+        font-weight: 700;
+        font-size: 24px;
+        color: #fff;
+        line-height: 36px;
+        margin-bottom: 16px;
+        transition: .3s ease;
+
+    }
+    .info-video .video-info .content-wrap .content .con .info-desc{
+        font-size: 14px;
+        color: #fff;
+        line-height: 30px;
+        transition: .3s ease;
+    }
+    .info-video .video-info .content-wrap .line{
+        position: absolute;
+        top: 0;
+        right: 3px;
+        width: 2px;
+        height: 100%;
+        background: rgba(255,255,255,.4);
+    }
+    .info-video .teacher-right{
+        width: 272px;
+        height: 312px;
+        padding-top: 49px;
+        float: left;
+    }
+    .info-video .teacher-right .teacher{
+        width: 160px;
+        margin: 0 auto;
+        position: relative;
+        text-align: center;
+    }
+    .info-video .teacher-right .teacher .white-border{
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        margin: 0 auto 12px auto;
+        background: #fff;
+    }
+    .info-video .teacher-right .teacher .white-border .teacher-img{
+        width: 132px;
+        height: 132px;
+        left: 14px;
+        top: 5px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: absolute;
+    }
+    .info-video .teacher-right .teacher .nick-name{
+        font-weight: 700;
+        font-size: 20px;
+        color: #fff;
+        line-height: 30px;
+        margin-bottom: 4px;
+    }
+    .info-video .teacher-right .teacher p{
+        font-size: 14px;
+        color: #fff;
+        line-height: 22px;
+    }
+    .web {
+        .ant-modal-content {
+            position: relative;
+            background-color: #00000000 !important;
+            border: 0;
+            border-radius: 4px;
+            background-clip: padding-box;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+        }
+
+        .ant-modal-body {
+            padding: 0 !important;
+            font-size: 14px !important;
+            line-height: 1 !important;
+        }
+    }
+}
+

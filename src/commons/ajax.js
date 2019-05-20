@@ -44,4 +44,3 @@ ajax.defaults.timeout = 1000 * 5;
 
 // mockjs使用的axios实例
 export const mockInstance = ajax.mockInstance = sxAjax.mockInstance;
-

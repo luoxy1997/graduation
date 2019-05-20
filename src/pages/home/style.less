@@ -1,4 +1,52 @@
+@primary-color: #1890ff;
+
 .root {
-    padding: 50px;
+  padding: 50px;
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.input-inner {
+  padding: 3px 8px;
+  background-color: #f3f5f7;
+  display: inline-block;
+}
+
+#components-form-demo-normal-login .login-form {
+  max-width: 300px;
+}
+
+#components-form-demo-normal-login .login-form-forgot {
+  float: right;
+}
+
+#components-form-demo-normal-login .login-form-button {
+  width: 100%;
+}
+
+:global {
+  .ant-carouse {
+    width: 936px;
+  }
+  .ant-carousel .slick-slide {
     text-align: center;
+    background: #364d79;
+    overflow: hidden;
+    height: 410px;
+    width: 936px;
+  }
+  .ant-col-20 .ant-carousel .slick-slider .slick-list {
+    box-radius: 10px !important;
+  }
+  .ant-carousel .slick-slide h3 {
+    color: #fff;
+  }
+}
+
+.i-web {
+  width: 36px;
+  height: 36px;
+  display: block;
+  overflow: hidden;
 }

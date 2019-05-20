@@ -62,9 +62,30 @@ module.exports = {
         // "/api/page-generator": {
         //     "target": "http://localhost:5000"
         // },
+        "/api/commodity/opera": {
+            // "target": "http://172.16.42.219:8081",
+            "target": "http://39.105.57.189:1297",
+            "pathRewrite": {
+                '^/api': '',
+            }
+        },
+        "/api/customer": {
+            // "target": "http://172.16.42.219:8081",
+            target: 'http://39.105.57.189:1297/',
+            "pathRewrite": {
+                '^/api': '',
+            }
+        },
+        "/api/manager/opera/getActiveInfo": {
+            // "target": "http://172.16.42.219:8081",
+            target: 'http://39.105.57.189:1292/',
+            "pathRewrite": {
+                '^/api': '',
+            }
+        },
         "/api": {
-            "target": "http://172.16.42.219:8081",
-            // "target": "http://172.16.155.23:8080/",
+            // "target": "http://172.16.42.219:8081",
+            target: 'http://39.105.57.189:1299/',
             "pathRewrite": {
                 '^/api': '',
             }
@@ -72,5 +93,6 @@ module.exports = {
         // "/graphql": {
         //     "target": "http://localhost:4000"
         // }
-    }
+
+}
 }

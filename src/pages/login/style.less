@@ -1,31 +1,46 @@
+@primary-color: #1890ff;
+
 .root {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: linear-gradient(-135deg, #4000ff, #00ff7b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-size: 100% 100%;
     animation: root-frames 1s;
 }
 
-@keyframes root-frames {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+.logo {
+    position: absolute;
+    top: 50px;
+    left: 100px;
+    width: 377px;
+    height: 73px;
+    background-size: 100% 100%;
+}
+
+.note {
+    position: absolute;
+    top: 150px;
+    right: 50px;
+    width: 532px;
+    height: 159px;
+    background-size: 100% 100%;
+}
+
+.menu {
+    position: absolute;
+    top: 16px;
+    right: 160px;
+    display: flex;
+    align-items: center;
 }
 
 .box {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-left: -180px;
-    margin-top: -160px;
+    padding: 16px 32px;
+    margin-top: 150px;
     width: 360px;
     height: 320px;
-    padding: 16px 32px;
     border-radius: 3px;
     background: #f8f8f8;
     box-shadow: 0 0 100px rgba(0, 0, 0, .08);
@@ -52,7 +67,18 @@
 .tip {
     color: #ccc;
     text-align: center;
+
     span {
         margin-right: 8px;
+    }
+}
+
+
+@keyframes root-frames {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
