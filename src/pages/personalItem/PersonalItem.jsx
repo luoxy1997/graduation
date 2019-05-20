@@ -67,18 +67,6 @@ export default class PersonalItem extends Component {
         });
 
     };
-    handlePasswordOk = () => {
-        const fields = ['userPassword'];
-        const {uuid} = this.props;
-
-        this.props.form.validateFieldsAndScroll(fields, (err, value) => {
-            this.props.ajax.post('customer/manager/findPassword', {userEmail: '814521434@qq.com'})
-                .then(res => {})
-        });
-        this.setState({
-            passwordVisible: true,
-        });
-    };
 
     handlePasswordCancel = () => {
         this.setState({

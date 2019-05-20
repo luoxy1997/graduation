@@ -29,9 +29,8 @@ export default class Personal extends Component {
         const {
             pageSize = this.state.pageSize,
             pageNum = this.state.pageNum,
-
         } = args;
-        this.setState({loading: true})
+        this.setState({loading: true});
         const userId = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
         this.props.ajax.get(`/commodity/opera/queryCommodity?commodityState=5?userId=${userId}&pageNum=${pageNum}&pageSize=${pageSize}`)
             .then((res) => {
@@ -58,7 +57,6 @@ export default class Personal extends Component {
         this.handleSearch({pageNum: pageNum});
     };
 
-
     render() {
         const {pageNum, total, pageSize,} = this.state;
         console.log(this.state.orders);
@@ -80,9 +78,9 @@ export default class Personal extends Component {
                                     <div className="myOrder-course">
                                         <dl className="course-del">
                                             <dd className="clearfix">
-                                                <div className="del-box" >
+                                                <div className="del-box">
                                                     <a>
-                                                        <p className="course-name" style={{paddingLeft:'100px'}}>{item.commodityName}</p>
+                                                        <p className="course-name" style={{paddingLeft: '100px'}}>{item.commodityName}</p>
                                                     </a>
                                                     <p className="price-btn-box"></p>
                                                 </div>

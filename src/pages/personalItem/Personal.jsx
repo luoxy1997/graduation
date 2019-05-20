@@ -111,7 +111,7 @@ export default class Personal extends Component {
                     <TabPane tab={<span><Icon type="upload"/>上传课程</span>} key="7">
                         <UploadItem/>
                     </TabPane>
-                    <TabPane tab={<span><Icon type="upload"/>我的课程</span>} key="8">
+                    <TabPane tab={<span><Icon type="book"/>我的课程</span>} key="8">
                         <MyCourse/>
                     </TabPane>
                 </Tabs>
