@@ -116,7 +116,7 @@ export default class CourseInfoTop extends Component {
                                 <a className="red-btn" onClick={this.handleBuy}>立即购买</a>
                             }
 
-                            <Popconfirm title="确认加入购物车？" onConfirm={this.handleAddCar}>
+                            <Popconfirm title="确认加入收藏夹？" onConfirm={this.handleAddCar}>
                                 <a className="add-chart">加入收藏</a>
                             </Popconfirm>
                         </div>

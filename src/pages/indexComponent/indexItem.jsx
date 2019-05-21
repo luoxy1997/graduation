@@ -63,7 +63,7 @@ export default class IndexItem extends Component {
                                 return (
                                     <Col span={4} style={{margin: '0 20px'}} onClick={()=>this.handleClass(item)} key={index}>
                                         <div className="item-banner">
-                                            <img src={`data:image/png;base64,${item.commodityImage}`} alt={12} tit='ew' width="100%" className="item-img"/>
+                                            <img src={`data:image/png;base64,${item.commodityImage}`} alt={12} style={{height: '110px'}} width="100%"  tit='ew' width="100%" className="item-img"/>
                                             <div className="item-label">
                                                 {item.commodityPerValue.map((it,index) => {
                                                         return (<label key={index}>{it}</label>)
