@@ -32,7 +32,7 @@ export default class Personal extends Component {
         } = args;
         this.setState({loading: true});
         const userId = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
-        this.props.ajax.get(`/commodity/opera/queryCommodity?commodityState=5&userId=${userId}&pageNum=${pageNum}&pageSize=${pageSize}`)
+        this.props.ajax.get(`commodity/opera/getCommodityByUserId?pageNum=${pageNum}&pageSize=${pageSize}&userUuid=${userId}`)
             .then((res) => {
                 this.setState({
                     orders: res.data.list,
@@ -63,7 +63,7 @@ export default class Personal extends Component {
         return (
             <div className="right-container">
                 <div className="right-title">
-                    <h2>我的订单</h2>
+                    <h2>我上传的课程</h2>
                 </div>
                 <Spin spinning={this.state.loading} tip="正在获取资源...">
 

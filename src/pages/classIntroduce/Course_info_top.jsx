@@ -39,23 +39,29 @@ export default class CourseInfoTop extends Component {
                 this.context.router.history.push({pathname: '/confirmGoods', state: this.props.commodities});
             }
         } else {
-            this.setState({visible: true})
+            notify('error', '用户还未登录，请登录后进行购买操作！')
         }
     };
     handleAddCar = () => {
-        const {uuid} = this.props.commodities;
-        const params = {
-            userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
-            commodityId: uuid
-        };
-        this.props.ajax.post('/customer/cart/addCart', params)
-            .then(() => {
-                notify('success', '已收藏')
-            })
-            .catch(() => {
-                notify('error', '收藏失败')
 
-            })
+        if (window.sessionStorage.getItem("user")) {
+            const {uuid} = this.props.commodities;
+            const params = {
+                userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
+                commodityId: uuid
+            };
+            this.props.ajax.post('/customer/cart/addCart', params)
+                .then(() => {
+                    notify('success', '已收藏')
+                })
+                .catch(() => {
+                    notify('error', '收藏失败')
+
+                })
+        }else{
+            console.log('sdasd');
+            notify('error', '用户还未登录，请登录后进行收藏操作！')
+        }
     }
 
     render() {
@@ -75,7 +81,7 @@ export default class CourseInfoTop extends Component {
             </div>
         );
 
-        console.log(commodityState,'ooooo');
+        console.log(commodityState, 'ooooo');
         return (
             <div className="course-infos-top" style={{background: `url(${classBg})`}}>
                 <div className="info-wrap">

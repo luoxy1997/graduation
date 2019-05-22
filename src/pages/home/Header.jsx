@@ -2,13 +2,14 @@ import React, {Component} from 'react'
 import {connect} from "../../models/index";
 import './style.less';
 import topAd from './topAd.jpg';
-import {Menu, Icon, Row, Input, Col, Button, Tooltip, Tabs, Form, Checkbox, Popconfirm, message, Spin,Modal} from 'antd';
+import {Menu, Icon, Row, Input, Col, Button, Tooltip, Tabs, Form, Checkbox, Popconfirm, message, Spin, Modal} from 'antd';
 import logo from './logo.png';
 import {ajaxHoc} from "../../commons/ajax";
 import PropTypes from "prop-types";
 import Login from './Login'
 import {hashHistory} from 'react-router'
 import Link from '../../layouts/page-link';
+import notify from './notify';
 
 const TabPane = Tabs.TabPane;
 @Form.create()
@@ -31,6 +32,7 @@ export default class Header extends Component {
     constructor(props, context) {
         super(props, context);
     };
+
     // 注册
     handleRegister = () => {
         const fields = ['userAccount', 'userPassword', 'userEmail'];
@@ -51,19 +53,20 @@ export default class Header extends Component {
             this.props.ajax.get('/common/login/into', params)
                 .then((res) => {
                     this.setState({userNickName: res.data.userName, userLogin: true, visible: false})
-                    window.sessionStorage.setItem("user",  JSON.stringify(res.data));
+                    window.sessionStorage.setItem("user", JSON.stringify(res.data));
+                })
+                .catch(err => {
+                    notify('error', '用户名或密码不正确，请重新输入')
                 })
         });
     };
-
 
 
     // 退出登录
     handleLogOut = () => {
         this.setState({spinning: true});
         setTimeout(() => {
-            window.sessionStorage.removeItem("uuid");
-            window.sessionStorage.removeItem("userName");
+            window.sessionStorage.removeItem("user");
             this.setState({userLogin: false, userNickName: null, spinning: false});
             message.success('您已退出云课网(￣▽￣)~*');
         }, 2000)
@@ -74,12 +77,12 @@ export default class Header extends Component {
         if (e.key !== 'personal' && e.key !== 'search') {
             this.context.router.history.push(e.key)
         }
-        if (e.key === '/search' ) {
+        if (e.key === '/search') {
             console.log('this');
-            this.context.router.history.push({pathname: '/kind', state: {commodityKind:'教学类'}})
+            this.context.router.history.push({pathname: '/kind', state: {commodityKind: '教学类'}})
         }
-        if (e.key === '/search1' ) {
-            this.context.router.history.push({pathname: '/kindType', state: {commodityKind:'儿童类'}})
+        if (e.key === '/search1') {
+            this.context.router.history.push({pathname: '/kindType', state: {commodityKind: '儿童类'}})
         }
     };
 
@@ -150,14 +153,14 @@ export default class Header extends Component {
                                     mode="horizontal"
                                     style={{borderBottom: 'none'}}
                                     theme={this.props.theme}
-                                    style={{marginTop:'5px'}}
+                                    style={{marginTop: '5px'}}
                                 >
 
                                     <Menu.Item key="/">
 
                                         <Link to={{
                                             pathname: '/',
-                                            state: {commodityKind:'教学类'}
+                                            state: {commodityKind: '教学类'}
 
                                         }}>
                                             首页
@@ -214,27 +217,17 @@ export default class Header extends Component {
                                         <Form className="login-form">
                                             <Form.Item>
                                                 {getFieldDecorator('userName', {
-                                                    rules: [{required: true, message: 'Please input your username!'}],
+                                                    rules: [{required: true, message: '请填写用户名！'}],
                                                 })(
                                                     <Input prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入用户名"/>
                                                 )}
                                             </Form.Item>
                                             <Form.Item>
                                                 {getFieldDecorator('password', {
-                                                    rules: [{required: true, message: 'Please input your Password!'}],
+                                                    rules: [{required: true, message: '请填写密码！'}],
                                                 })(
                                                     <Input prefix={<Icon type="lock" style={{color: 'rgba(0,0,0,.25)'}}/>} type="password" placeholder="请输入密码"/>
                                                 )}
-                                            </Form.Item>
-                                            <Form.Item>
-                                                {getFieldDecorator('remember', {
-                                                    valuePropName: 'checked',
-                                                    initialValue: true,
-                                                })(
-                                                    <Checkbox>记住密码</Checkbox>
-                                                )}
-                                                <a className="login-form-forgot" href="">忘记密码</a>
-                                                或<a href="">立即注册!</a>
                                             </Form.Item>
                                             <Form.Item>
                                                 <Button type="primary" icon="smile" style={{width: '100%'}} onClick={this.handleSubmit}>登录</Button>
@@ -245,21 +238,21 @@ export default class Header extends Component {
                                         <Form className="login-form">
                                             <Form.Item>
                                                 {getFieldDecorator('userAccount', {
-                                                    rules: [{required: true, message: 'Please input your username!'}],
+                                                    rules: [{required: true, message: '请输入用户名!'}],
                                                 })(
                                                     <Input prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入用户名"/>
                                                 )}
                                             </Form.Item>
                                             <Form.Item>
                                                 {getFieldDecorator('userEmail', {
-                                                    rules: [{required: true, message: 'Please input your Password!'}],
+                                                    rules: [{required: true, message: '请输入邮箱'}],
                                                 })(
                                                     <Input prefix={<Icon type="mail" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入邮箱"/>
                                                 )}
                                             </Form.Item>
                                             <Form.Item>
                                                 {getFieldDecorator('userPassword', {
-                                                    rules: [{required: true, message: 'Please input your Password!'}],
+                                                    rules: [{required: true, message: '请输入密码'}],
                                                 })(
                                                     <Input prefix={<Icon type="lock" style={{color: 'rgba(0,0,0,.25)'}}/>} type="password" placeholder="请输入密码"/>
                                                 )}
