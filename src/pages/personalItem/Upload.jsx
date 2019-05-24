@@ -47,9 +47,10 @@ export default class UploadItem extends Component {
         if (!file) {
             return;
         }
-        console.log(file.type);
+
         let src, preview, type = file.type;
-        if (/^video\/\S+$/.test(type)) {
+        console.log(type);
+        if (/^video\/\S+$/.test(type) || /^application\/\S+$/.test(type)) {
             src = URL.createObjectURL(file)
             let reader = new FileReader();
             reader.readAsDataURL(file);
@@ -59,7 +60,7 @@ export default class UploadItem extends Component {
             };
         } else {
             this.setState({path: '', file,})
-            notify('error', '只允许上传视频！');
+            notify('error','只能上传mp4视频或word类型文件')
             return false
         }
     };
@@ -235,7 +236,7 @@ export default class UploadItem extends Component {
                     <Row>
                         <Col span={6}>
                             <div style={{paddingTop: '25px', paddingLeft: '5px'}}>
-                                <input type='file' accept=".doc,.docx,.jpg,.png" onChange={this.changePath} style={{float: 'left'}}/>
+                                <input type='file' accept=".doc,.docx,.jpg,.mp4" onChange={this.changePath} style={{float: 'left'}}/>
                             </div>
                         </Col>
                     </Row>
