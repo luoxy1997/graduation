@@ -47,6 +47,7 @@ export default class UploadItem extends Component {
         if (!file) {
             return;
         }
+        console.log(file.type);
         let src, preview, type = file.type;
         if (/^video\/\S+$/.test(type)) {
             src = URL.createObjectURL(file)
@@ -234,7 +235,7 @@ export default class UploadItem extends Component {
                     <Row>
                         <Col span={6}>
                             <div style={{paddingTop: '25px', paddingLeft: '5px'}}>
-                                <input type='file' accept='video/*,image/*,text/plain' onChange={this.changePath} style={{float: 'left'}}/>
+                                <input type='file' accept=".doc,.docx,.jpg,.png" onChange={this.changePath} style={{float: 'left'}}/>
                             </div>
                         </Col>
                     </Row>
