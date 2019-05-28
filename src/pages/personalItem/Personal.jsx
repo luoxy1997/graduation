@@ -94,9 +94,7 @@ export default class Personal extends Component {
                         <img src={girl} alt="" tit="" width="115px"/>
                     </div>
                 </div>
-                <div className="upload">
-                    <Button type="primary" onClick={this.showModal}><Icon type="heart"/>修改头像</Button>
-                </div>
+
                 <Tabs
                     defaultActiveKey="1"
                     tabPosition="left"

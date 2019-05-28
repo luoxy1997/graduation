@@ -1,10 +1,11 @@
 import React, {Component} from 'react'
 import {ajaxHoc} from "../../commons/ajax";
 
-import {Icon, Tabs, Collapse, Pagination, Row, Spin} from 'antd';
+import {Icon, Tabs, Collapse, Pagination, Row, Spin, Button, Popconfirm} from 'antd';
 import goodsImg from './goodsimg.jpg'
 
 import './style.less';
+import {Menu} from "antd/lib/menu";
 
 const TabPane = Tabs.TabPane;
 
@@ -57,7 +58,13 @@ export default class Personal extends Component {
         //塞数据后立即执行函数并使用数据时，会产生异步，此时我们获取不到最新的值，所以我们这个时候传参
         this.handleSearch({pageNum: pageNum});
     };
+    returnItem = (item) => {
+        this.props.ajax.post('/customer/order/insertReturnOrder', {userId: item.userId, orderId: parseInt(item.uuid)})
+            .then(res => {
+                this.handleSearch();
+            })
 
+    }
 
     render() {
         const {pageNum, total, pageSize,} = this.state;
@@ -72,45 +79,61 @@ export default class Personal extends Component {
                     <div className="myOrder">
                         <ul className="myOrder-list">
                             {this.state.orders.map(item => {
-                                return <li>
-                                    <p className="myOrder-number">
-                                        <Icon type="bars" style={{fontSize: '18px', paddingTop: '9px', paddingRight: '15px', color: 'rgb(221,52,21)'}}/>
-                                        订单编号：{item.orderId}
-                                    </p>
-                                    <div className="myOrder-course">
-                                        <dl className="course-del">
-                                            <dd className="clearfix">
-                                                <div className="del-box" >
-                                                    <a>
-                                                        <p className="course-name" style={{paddingLeft:'100px'}}>{item.commodityName}</p>
-                                                    </a>
-                                                    <p className="price-btn-box"></p>
-                                                </div>
+                                    return <li>
+                                        <p className="myOrder-number">
+                                            <Icon type="bars" style={{fontSize: '18px', paddingTop: '9px', paddingRight: '15px', color: 'rgb(221,52,21)'}}/>
+                                            订单编号：{item.orderId}
+                                        </p>
+                                        <div className="myOrder-course">
+                                            <dl className="course-del">
+                                                <dd className="clearfix">
+                                                    <div className="del-box">
+                                                        <a>
+                                                            <p className="course-name" style={{paddingLeft: '100px'}}>{item.commodityName}</p>
+                                                        </a>
+                                                        <p className="price-btn-box"></p>
+                                                    </div>
 
-                                            </dd>
-                                        </dl>
-                                        <div className="course-money">
-                                            <div className="type-box">
-                                                <p className="type-text">原价</p>
-                                                <div className="type-price"><s> ¥398.00</s></div>
+                                                </dd>
+                                            </dl>
+                                            <div className="course-money">
+                                                <div className="type-box">
+                                                    <p className="type-text">原价</p>
+                                                    <div className="type-price"><s> ¥398.00</s></div>
+                                                </div>
+                                                <div className="type-box">
+                                                    <p className="type-text">折扣</p>
+                                                    <div className="type-price"> ¥398.00</div>
+                                                </div>
+                                                <div className="type-box">
+                                                    <p className="type-text">实付</p>
+                                                    <div className="type-price" style={{color: '#f01414', fontSize: '18px'}}> ¥{item.commodityPrice}</div>
+                                                </div>
                                             </div>
-                                            <div className="type-box">
-                                                <p className="type-text">折扣</p>
-                                                <div className="type-price"> ¥398.00</div>
-                                            </div>
-                                            <div className="type-box">
-                                                <p className="type-text">实付</p>
-                                                <div className="type-price" style={{color: '#f01414', fontSize: '18px'}}> ¥{item.commodityPrice}</div>
+                                            <div className="course-action" style={{zIndex: 9999}}>
+
+                                                {item.orderState === 1 || null ?
+                                                    <Popconfirm title="确认要退货?" onConfirm={() => this.returnItem(item)}>
+                                                        <Button type="dashed" style={{marginTop: '30px', marginLeft: '50px'}}>
+                                                            申请退货
+                                                        </Button>
+                                                    </Popconfirm> :
+                                                    (item.orderState === 2 ? <Button type="primary" style={{marginTop: '30px', marginLeft: '50px', float: 'left'}}>
+                                                                退货成功
+                                                            </Button> :
+                                                            <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
+                                                                退货待审核中
+                                                            </Button>
+
+                                                    )
+
+                                                }
+
                                             </div>
                                         </div>
-                                        <div className="course-action">
-                                            <a className="pay-now">
-                                                删除订单记录
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                            })}
+                                    </li>
+                                }
+                            )}
                         </ul>
                     </div>
                     <Row style={{width: '100%'}}>
@@ -125,8 +148,9 @@ export default class Personal extends Component {
                         />
                     </Row>
                 </Spin>
-            </div>
-        );
-    }
-}
+                <
+                /div>
+                );
+                }
+                }
 

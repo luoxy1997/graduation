@@ -6,7 +6,7 @@ import {ajaxHoc} from "../../commons/ajax";
 import QRCode from 'qrcode.react';
 import moment from 'moment'
 import {Divider, Modal, Button, Spin, Icon, Collapse} from 'antd';
-
+import notify from './notify'
 
 import './style.less';
 import {Menu} from "antd/lib/menu";
@@ -23,15 +23,17 @@ export default class VideoItem extends Component {
         qrCodeVisible: false,
         loading: false
     };
-    componentWillMount(){
+
+    componentWillMount() {
         this.props.ajax.get('/manager/opera/getActiveInfo')
             .then(res => {
-                if(res.data){
-                    this.setState({count:res.data.activeDiscount|| 1,start:moment(res.data.activeStartDate).format('YYYY-MM-DD'),end:moment(res.data.activeEndDate).format('YYYY-MM-DD')})
+                if (res.data) {
+                    this.setState({count: res.data.activeDiscount || 1, start: moment(res.data.activeStartDate).format('YYYY-MM-DD'), end: moment(res.data.activeEndDate).format('YYYY-MM-DD')})
 
                 }
             })
     }
+
     handlePay = () => {
         this.setState({visible: true});
 
@@ -44,8 +46,13 @@ export default class VideoItem extends Component {
         this.setState({type});
     };
     handleOk = () => {
-        console.log(this.props.location.state);
-        const {commodityName, uuid,commodityPrice,commodityCredits} = this.props.location.state;
+
+        const {commodityName, uuid, commodityPrice, commodityCredits, commodityStatus, commodityUrl} = this.props.location.state;
+        if (commodityStatus === 'doc') {
+            window.location.href=commodityUrl;
+            notify('success','资料已下载')
+        }
+        ;
         const params = {
             userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
             orderType: this.state.type,
@@ -77,7 +84,7 @@ export default class VideoItem extends Component {
 
 
     render() {
-        const {commodityName, commodityOPrice,commodityPrice,commodityCredits,commodityImage} = this.props.location.state;
+        const {commodityName, commodityOPrice, commodityPrice, commodityCredits, commodityImage} = this.props.location.state;
         console.log(this.props.location.state);
 
         return (
@@ -122,7 +129,7 @@ export default class VideoItem extends Component {
                             <Divider>请仔细确认订单信息</Divider>
                             <Collapse bordered={false} defaultActiveKey={['1']}>
                                 <Panel header="优惠活动" key="1">
-                                    <p style={{paddingLeft: 24 ,color:'#f01414'}}>
+                                    <p style={{paddingLeft: 24, color: '#f01414'}}>
                                         {` 活动时间：${this.state.start}-${this.state.end}        折扣：${this.state.count}`}
                                     </p>
                                 </Panel>
@@ -131,7 +138,7 @@ export default class VideoItem extends Component {
                                 <div className="goods-total-price-box">
                                     <div className="price-num">
                                         <em>￥</em>
-                                        <span>{(commodityPrice/this.state.count).toFixed(2)} * {this.state.count}折扣</span>
+                                        <span>{(commodityPrice / this.state.count).toFixed(2)} * {this.state.count}折扣</span>
                                     </div>
                                     <div className="price-text">
                                         共
@@ -150,9 +157,9 @@ export default class VideoItem extends Component {
                                 </div>
                             </div>
                             {/*<div className="pay-account-box">*/}
-                                {/*<div className="pay-account">*/}
-                                    {/*购买账号：抹茶味的胡萝卜*/}
-                                {/*</div>*/}
+                            {/*<div className="pay-account">*/}
+                            {/*购买账号：抹茶味的胡萝卜*/}
+                            {/*</div>*/}
                             {/*</div>*/}
                             <a className="buy-btn" onClick={this.handlePay}>提交订单</a>
                         </div>

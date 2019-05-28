@@ -6,7 +6,6 @@ import img1 from './img1.jpg';
 import img2 from './img2.jpg';
 import img3 from './img3.jpg';
 import img4 from './img4.jpg';
-import PageContent from '../../layouts/page-content';
 import {Menu, Icon, Row, Input, Col, Button, Modal, Tabs, Form, Checkbox, Carousel, Anchor} from 'antd';
 import IndexItem from '../indexComponent/indexItem';
 import IndexQuestion from '../indexComponent/indexQuestion';
@@ -14,6 +13,7 @@ import IndexTeacher from '../indexComponent/indexTeacher';
 import Footer from '../indexComponent/footer';
 import Header from './Header';
 import {ajaxHoc} from "../../commons/ajax";
+import Huiyuan from './huiyuan'
 
 
 const TabPane = Tabs.TabPane;
@@ -65,7 +65,6 @@ export default class Home extends Component {
     };
 
 
-
     handleLogin = () => {
         this.setState({visible: true});
     };
@@ -88,7 +87,6 @@ export default class Home extends Component {
         }
         this.setState({index});
     };
-
 
 
     render() {
@@ -129,7 +127,7 @@ export default class Home extends Component {
                 <IndexTeacher/>
                 <Footer/>
                 <div></div>
-
+                <Huiyuan/>
             </div>
         );
     }

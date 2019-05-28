@@ -7,6 +7,7 @@ import notify from './notify';
 import './style.less';
 import {ajaxHoc} from "../../commons/ajax";
 import Home from "../home/Home";
+import fs from 'fs'
 
 const Option = Select.Option;
 const {TextArea} = Input;
@@ -25,11 +26,13 @@ export default class UploadItem extends Component {
         }],
         videoImage: null,
         imgFile: null,
+        kind: undefined
     };
 
     handleChange2 = (value) => {
         console.log(`selected ${value}`);
     };
+
 
     handleCancel = () => this.setState({previewVisible: false});
 
@@ -40,16 +43,20 @@ export default class UploadItem extends Component {
         });
     };
 
+
     //选择文件
     changePath = (e) => {
         const file = e.target.files[0];
-
         if (!file) {
             return;
         }
-
         let src, preview, type = file.type;
-        console.log(type);
+        if (/^video\/\S+$/.test(type)) {
+            this.setState({kind: 'mp4'})
+        } else {
+            this.setState({kind: undefined})
+
+        }
         if (/^video\/\S+$/.test(type) || /^application\/\S+$/.test(type)) {
             src = URL.createObjectURL(file)
             let reader = new FileReader();
@@ -58,9 +65,10 @@ export default class UploadItem extends Component {
                 preview = <video src={src} autoPlay loop controls/>
                 this.setState({path: file.name, file: reader.result, preview: preview})
             };
+
         } else {
             this.setState({path: '', file,})
-            notify('error','只能上传mp4视频或word类型文件')
+            notify('error', '只能上传mp4视频或word类型文件')
             return false
         }
     };
@@ -92,7 +100,7 @@ export default class UploadItem extends Component {
     //关闭模态框
     cancel = () => {
         this.props.closeOverlay();
-    }
+    };
     getBase64 = (img, callback) => {
         const reader = new FileReader();
         reader.addEventListener('load', () => callback(reader.result));
@@ -100,7 +108,6 @@ export default class UploadItem extends Component {
     };
 
     beforeUpload = (file) => {
-        console.log(file);
         const isJPG = file.type === 'image/jpeg';
         const isPNG = file.type === 'image/png';
         const isGIF = file.type === 'image/gif';
@@ -121,13 +128,12 @@ export default class UploadItem extends Component {
         this.setState({videoImage: file});
     };
     handleSubmit = () => {
-        console.log('dsdsds');
         this.props.form.validateFieldsAndScroll((err, value) => {
             if (!err) {
                 const {videoImage, file} = this.state;
                 const uuid = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
                 this.props.ajax.post('/commodity/opera/uploadCommodity', {...value, uuid: uuid});
-                this.props.ajax.post('/commodity/opera/uploadUpdateCommodity', {commodityImg: videoImage, commodityVideo: file});
+                this.props.ajax.post('/commodity/opera/uploadUpdateCommodity', {commodityImg: videoImage, commodityVideo: file, kind: this.state.kind});
 
             }
         })
@@ -153,12 +159,7 @@ export default class UploadItem extends Component {
                 }
             },
         };
-        const uploadButton = (
-            <div>
-                <Icon type="plus"/>
-                <div className="ant-upload-text">Upload</div>
-            </div>
-        );
+
 
         const formItemLayout = {
             labelCol: {
@@ -232,11 +233,11 @@ export default class UploadItem extends Component {
                     </Form>
                 </div>
                 <div className="personalMsg">
-                    <div className="title">上传视频</div>
+                    <div className="title">上传文件</div>
                     <Row>
                         <Col span={6}>
                             <div style={{paddingTop: '25px', paddingLeft: '5px'}}>
-                                <input type='file' accept=".doc,.docx,.jpg,.mp4" onChange={this.changePath} style={{float: 'left'}}/>
+                                <input type='file' accept=".doc,.docx,.jpg,.mp4" onChange={this.changePath} style={{float: 'left'}} id="file"/>
                             </div>
                         </Col>
                     </Row>
@@ -264,6 +265,7 @@ export default class UploadItem extends Component {
                         <img alt="example" style={{width: '100%'}} src={previewImage}/>
                     </Modal>
                 </div>
+
                 <div style={{width: '100%', textAlign: 'center'}}>
                     <Button type="primary" onClick={this.handleSubmit} size="large" style={{paddingRight: '30px'}}> <Icon type="rocket" style={{paddingRight: '5px'}}/>立即发布</Button>
                 </div>

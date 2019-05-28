@@ -13,11 +13,12 @@ export const PAGE_ROUTE = '/classInfo';
 export default class CourseInfo extends Component {
 
     render() {
+        const {commodityStatus} = this.props.location.state;
         return (
             <div>
                 <Header commodities={this.props.location.state} background="black" theme="dark"/>
                 <CourseInfoTop commodities={this.props.location.state}/>
-                <VideoItem commodities={this.props.location.state}/>
+                {commodityStatus ==='mp4' ? <VideoItem commodities={this.props.location.state}/> :null}
             </div>
         );
     }

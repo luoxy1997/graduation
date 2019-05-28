@@ -76,7 +76,7 @@ module.exports = {
                 '^/api': '',
             }
         },
-        "/api/manager/opera/getActiveInfo": {
+        "/api/manager/opera": {
             // "target": "http://172.16.42.219:8081",
             target: 'http://39.105.57.189:1292/',
             "pathRewrite": {

@@ -59,7 +59,7 @@ export default class CourseInfoTop extends Component {
 
                 })
         }else{
-            console.log('sdasd');
+
             notify('error', '用户还未登录，请登录后进行收藏操作！')
         }
     }

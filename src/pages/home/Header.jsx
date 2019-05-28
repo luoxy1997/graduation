@@ -124,6 +124,7 @@ export default class Header extends Component {
                 &nbsp;&nbsp;
                 <Button type="dashed" size="small" onClick={this.handlepayChart}>我的收藏</Button>
                 &nbsp;&nbsp;
+
                 <Popconfirm title="确认要退出此账号?" onConfirm={this.handleLogOut}>
                     <Button type="danger" size="small">退出</Button>
                 </Popconfirm>

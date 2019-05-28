@@ -105,6 +105,9 @@ export default class Personal extends Component {
                                             <a className="pay-now">
                                                 删除订单记录
                                             </a>
+                                            <a className="pay-now">
+                                               退货
+                                            </a>
                                         </div>
                                     </div>
                                 </li>
