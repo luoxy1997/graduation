@@ -15,7 +15,8 @@ const Panel = Collapse.Panel;
 @Form.create()
 export default class Personal extends Component {
     state = {
-        visible: false,
+        visible1: false,
+        visible2: false,
         orders: [],
         pageSize: 5,
         pageNum: 1,
@@ -59,7 +60,7 @@ export default class Personal extends Component {
         this.handleSearch({pageNum: pageNum});
     };
     returnItem = (item) => {
-        this.setState({visible: true, item: item});
+        this.setState({visible1: true, item: item});
 
 
     }
@@ -69,18 +70,22 @@ export default class Personal extends Component {
         this.props.ajax.post('/customer/order/insertReturnOrder', {userId: userId, orderId: parseInt(uuid), remark: remark})
             .then(res => {
                 this.handleSearch();
-                this.setState({visible: false});
+                this.setState({visible1: false});
             })
     }
-    handleCancel = () => {
-        this.setState({visible: false});
+    handleCancel1 = () => {
+        this.setState({visible1: false});
+
+    }
+    handleCancel2 = () => {
+        this.setState({visible2: false});
         this.video.pause();
     }
     pushItem = (item) => {
         this.props.ajax.get(`commodity/opera/queryCommodity?pageNum=1&pageSize=1&CommodityId=${item.commodityId}`)
             .then(res => {
                 if (res.data.list[0].commodityStatus === 'mp4') {
-                    this.setState({commodityUrl: res && res.data.list[0].commodityUrl, visible: true})
+                    this.setState({commodityUrl: res && res.data.list[0].commodityUrl, visible2: true})
 
                 } else {
                     window.location.href=res && res.data.list[0].commodityUrl;
@@ -183,9 +188,9 @@ export default class Personal extends Component {
                 </Spin>
                 <Modal
                     title="Basic Modal"
-                    visible={this.state.visible}
+                    visible={this.state.visible1}
                     onOk={this.handleOk}
-                    onCancel={this.handleCancel}
+                    onCancel={this.handleCancel1}
                 >
                     <Form onSubmit={this.handleSubmit} style={{width: '400px', margin: '0 auto'}}>
                         <Form.Item
@@ -203,9 +208,9 @@ export default class Personal extends Component {
                     </Form>
                 </Modal>
                 <Modal
-                    visible={this.state.visible}
+                    visible={this.state.visible2}
                     onOk={this.handleOk}
-                    onCancel={this.handleCancel}
+                    onCancel={this.handleCancel2}
                     width='900px'
                     title={null}
                     wrapClassName={'web'}
