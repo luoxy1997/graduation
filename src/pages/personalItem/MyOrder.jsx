@@ -1,17 +1,18 @@
 import React, {Component} from 'react'
 import {ajaxHoc} from "../../commons/ajax";
 
-import {Icon, Tabs, Collapse, Pagination, Row, Spin, Button, Popconfirm} from 'antd';
+import {Icon, Tabs, Collapse, Pagination, Row, Spin, Button, Popconfirm, Modal, Input, Form} from 'antd';
 import goodsImg from './goodsimg.jpg'
-
+import Vedio from '../classIntroduce/VideoItem'
 import './style.less';
-import {Menu} from "antd/lib/menu";
+
 
 const TabPane = Tabs.TabPane;
 
 
 const Panel = Collapse.Panel;
 @ajaxHoc()
+@Form.create()
 export default class Personal extends Component {
     state = {
         visible: false,
@@ -32,7 +33,7 @@ export default class Personal extends Component {
             pageNum = this.state.pageNum,
 
         } = args;
-        this.setState({loading: true})
+        this.setState({loading: true});
         const userId = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
         this.props.ajax.get(`/customer/order/queryOrderInfoByUserId?userId=${userId}&pageNum=${pageNum}&pageSize=${pageSize}`)
             .then((res) => {
@@ -41,7 +42,6 @@ export default class Personal extends Component {
                     total: res.data.total,
                     pageSize: res.data.pageSize,
                     pageNum: res.data.pageNum
-
                 })
             })
             .finally(() => {
@@ -59,16 +59,48 @@ export default class Personal extends Component {
         this.handleSearch({pageNum: pageNum});
     };
     returnItem = (item) => {
-        this.props.ajax.post('/customer/order/insertReturnOrder', {userId: item.userId, orderId: parseInt(item.uuid)})
+        this.setState({visible: true, item: item});
+
+
+    }
+    handleOk = () => {
+        const {userId, uuid} = this.state.item;
+        const {remark} = this.props.form.getFieldsValue();
+        this.props.ajax.post('/customer/order/insertReturnOrder', {userId: userId, orderId: parseInt(uuid), remark: remark})
             .then(res => {
                 this.handleSearch();
+                this.setState({visible: false});
             })
+    }
+    handleCancel = () => {
+        this.setState({visible: false});
+        this.video.pause();
+    }
+    pushItem = (item) => {
+        this.props.ajax.get(`commodity/opera/queryCommodity?pageNum=1&pageSize=1&CommodityId=${item.commodityId}`)
+            .then(res => {
+                if (res.data.list[0].commodityStatus === 'mp4') {
+                    this.setState({commodityUrl: res && res.data.list[0].commodityUrl, visible: true})
 
+                } else {
+                    window.location.href=res && res.data.list[0].commodityUrl;
+                }
+            })
     }
 
     render() {
         const {pageNum, total, pageSize,} = this.state;
-        console.log(this.state.orders);
+        const {getFieldDecorator} = this.props.form;
+        const formItemLayout = {
+            labelCol: {
+                xs: {span: 24},
+                sm: {span: 6},
+            },
+            wrapperCol: {
+                xs: {span: 24},
+                sm: {span: 18},
+            },
+        };
         return (
             <div className="right-container">
                 <div className="right-title">
@@ -110,24 +142,35 @@ export default class Personal extends Component {
                                                     <div className="type-price" style={{color: '#f01414', fontSize: '18px'}}> ¥{item.commodityPrice}</div>
                                                 </div>
                                             </div>
-                                            <div className="course-action" style={{zIndex: 9999}}>
+                                            <div className="course-action">
 
                                                 {item.orderState === 1 || null ?
-                                                    <Popconfirm title="确认要退货?" onConfirm={() => this.returnItem(item)}>
-                                                        <Button type="dashed" style={{marginTop: '30px', marginLeft: '50px'}}>
+                                                    <Popconfirm title="确认要退货?" onConfirm={() => this.returnItem(item)} style={{marginTop: '30px', float: 'left'}}>
+                                                        <Button type="dashed">
                                                             申请退货
                                                         </Button>
                                                     </Popconfirm> :
                                                     (item.orderState === 2 ? <Button type="primary" style={{marginTop: '30px', marginLeft: '50px', float: 'left'}}>
                                                                 退货成功
                                                             </Button> :
-                                                            <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
-                                                                退货待审核中
-                                                            </Button>
+                                                            (item.orderState === 4 ?
+                                                                <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
+                                                                    退货失败
+                                                                </Button> : <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
+                                                                    退货待审核中
+                                                                </Button>)
 
                                                     )
 
                                                 }
+                                                {item.orderState === 1 || null ?
+
+                                                    <Button type="primary" style={{marginTop: '30px', float: 'left', marginLeft: '45px'}} onClick={() => this.pushItem(item)}>
+                                                        查看课程详情
+                                                    </Button> : null
+
+                                                }
+
 
                                             </div>
                                         </div>
@@ -136,21 +179,58 @@ export default class Personal extends Component {
                             )}
                         </ul>
                     </div>
-                    <Row style={{width: '100%'}}>
-                        <Pagination
-                            current={pageNum}//当前的页数
-                            total={total}//接受的总数
-                            pageSize={pageSize}//一页的条数
-                            onChange={this.changePage}//改变页数
-                            showQuickJumper//快速跳转
-                            showTotal={total => `共 ${total}条`}//共多少条
-                            style={{textAlign: 'center', marginTop: '20px', display: 'block', width: '100%'}}
-                        />
-                    </Row>
+
                 </Spin>
-                <
-                /div>
-                );
-                }
-                }
+                <Modal
+                    title="Basic Modal"
+                    visible={this.state.visible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                >
+                    <Form onSubmit={this.handleSubmit} style={{width: '400px', margin: '0 auto'}}>
+                        <Form.Item
+                            {...formItemLayout}
+                            label="退货理由"
+                        >
+                            {getFieldDecorator('remark', {
+                                rules: [{
+                                    required: true, message: "请输入退货理由！ ",
+                                }],
+                            })(
+                                <Input placeholder="请输入退货理由"/>
+                            )}
+                        </Form.Item>
+                    </Form>
+                </Modal>
+                <Modal
+                    visible={this.state.visible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                    width='900px'
+                    title={null}
+                    wrapClassName={'web'}
+                    style={{zIndex: 9999999}}
+                >
+
+                    <video width="900" src="https://zdj-save-file.oss-cn-beijing.aliyuncs.com/video/study/dressOne.txt" controls="controls" autoPlay="autoplay" ref={video => this.video = video}>
+                        您的浏览器不支持 video 标签。
+                    </video>
+
+                </Modal>
+                <Row style={{width: '100%'}}>
+                    <Pagination
+                        current={pageNum}//当前的页数
+                        total={total}//接受的总数
+                        pageSize={pageSize}//一页的条数
+                        onChange={this.changePage}//改变页数
+                        showQuickJumper//快速跳转
+                        showTotal={total => `共 ${total}条`}//共多少条
+                        style={{textAlign: 'center', marginTop: '20px', display: 'block', width: '100%'}}
+                    />
+                </Row>
+
+            </div>
+        );
+    }
+}
 

@@ -66,10 +66,10 @@ export default class Login extends Component {
 
         return (
             <Affix offsetTop={this.state.top} style={{position: 'absolute', top: 400, right: 0, zIndex: 9999}}>
-                <img src={huiyuan} alt=" " tit="" width={80}/>
-                <div>
-                    <Button type="primary" size="small" onClick={this.onClick1}>&nbsp;&nbsp;注册会员</Button>
-                </div>
+                {/*<img src={huiyuan} alt=" " tit="" width={80}/>*/}
+                {/*<div>*/}
+                    {/*<Button type="primary" size="small" onClick={this.onClick1}>&nbsp;&nbsp;注册会员</Button>*/}
+                {/*</div>*/}
                 <Modal
                     visible={this.state.qrCodeVisible}
                     onCancel={this.handleQRCancel}

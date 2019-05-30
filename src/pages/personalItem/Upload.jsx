@@ -132,8 +132,14 @@ export default class UploadItem extends Component {
             if (!err) {
                 const {videoImage, file} = this.state;
                 const uuid = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
-                this.props.ajax.post('/commodity/opera/uploadCommodity', {...value, uuid: uuid});
-                this.props.ajax.post('/commodity/opera/uploadUpdateCommodity', {commodityImg: videoImage, commodityVideo: file, kind: this.state.kind});
+                this.props.ajax.post('/commodity/opera/uploadCommodity', {...value, uuid: uuid})
+                    .then(res => {
+                        notify('success', '封面上传成功！')
+                    })
+                this.props.ajax.post('/commodity/opera/uploadUpdateCommodity', {commodityImg: videoImage, commodityVideo: file, kind: this.state.kind})
+                    .then(res => {
+                        notify('success', '视频上传成功！')
+                    })
 
             }
         })

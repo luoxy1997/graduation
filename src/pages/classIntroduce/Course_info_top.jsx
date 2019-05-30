@@ -81,7 +81,6 @@ export default class CourseInfoTop extends Component {
             </div>
         );
 
-        console.log(commodityState, 'ooooo');
         return (
             <div className="course-infos-top" style={{background: `url(${classBg})`}}>
                 <div className="info-wrap">

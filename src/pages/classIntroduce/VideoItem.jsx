@@ -39,7 +39,7 @@ export default class VideoItem extends Component {
 
     render() {
         const {commodityUrl, commodityName, commodityRemark, commodityKind, commodityCreateDate, commodityEvaluate, type, commodityState} =  this.props.commodities;
-
+        console.log(commodityUrl);
         return (
             <div className="info-video">
                 <div className="info-box">
