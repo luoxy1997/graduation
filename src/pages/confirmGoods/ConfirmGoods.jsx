@@ -51,8 +51,8 @@ export default class VideoItem extends Component {
         if (commodityStatus === 'doc') {
             window.location.href=commodityUrl;
             notify('success','资料已下载')
-        }
-        ;
+        };
+        console.log(commodityCredits);
         const params = {
             userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
             orderType: this.state.type,

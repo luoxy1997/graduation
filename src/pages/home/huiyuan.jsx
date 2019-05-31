@@ -37,8 +37,15 @@ export default class Login extends Component {
     };
 
     onClick1 = () => {
+
         if (window.sessionStorage.getItem("user")) {
+
             const userId = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
+            const userState = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).userState;
+            if (userState==='2'){
+                notify('error','您已经是会员，无需注册！');
+                return false;
+            }
             this.setState({qrCodeVisible: true});
             this.props.ajax.get(`/manager/opera/GetHYEWM?userId=${userId}`)
                 .then(res => {
@@ -66,10 +73,10 @@ export default class Login extends Component {
 
         return (
             <Affix offsetTop={this.state.top} style={{position: 'absolute', top: 400, right: 0, zIndex: 9999}}>
-                {/*<img src={huiyuan} alt=" " tit="" width={80}/>*/}
-                {/*<div>*/}
-                    {/*<Button type="primary" size="small" onClick={this.onClick1}>&nbsp;&nbsp;注册会员</Button>*/}
-                {/*</div>*/}
+                <img src={huiyuan} alt=" " tit="" width={80}/>
+                <div>
+                    <Button type="primary" size="small" onClick={this.onClick1}>&nbsp;&nbsp;注册会员</Button>
+                </div>
                 <Modal
                     visible={this.state.qrCodeVisible}
                     onCancel={this.handleQRCancel}

@@ -73,7 +73,7 @@ export default class Personal extends Component {
                                 return <li>
                                     <p className="myOrder-number">
                                         <Icon type="bars" style={{fontSize: '18px', paddingTop: '9px', paddingRight: '15px', color: 'rgb(221,52,21)'}}/>
-                                        订单编号：{item.orderId}
+                                        我上传的课程
                                     </p>
                                     <div className="myOrder-course">
                                         <dl className="course-del">
@@ -88,27 +88,15 @@ export default class Personal extends Component {
                                             </dd>
                                         </dl>
                                         <div className="course-money">
-                                            <div className="type-box">
-                                                <p className="type-text">原价</p>
-                                                <div className="type-price"><s> ¥398.00</s></div>
+                                            <div style={{paddingRight:'200px'}}>
+
                                             </div>
-                                            <div className="type-box">
-                                                <p className="type-text">折扣</p>
-                                                <div className="type-price"> ¥398.00</div>
-                                            </div>
-                                            <div className="type-box">
-                                                <p className="type-text">实付</p>
+                                            <div className="type-box" style={{paddingRight:'200px'}}>
+                                                <p className="type-text">价格</p>
                                                 <div className="type-price" style={{color: '#f01414', fontSize: '18px'}}> ¥{item.commodityPrice}</div>
                                             </div>
                                         </div>
-                                        <div className="course-action">
-                                            <a className="pay-now">
-                                                删除订单记录
-                                            </a>
-                                            <a className="pay-now">
-                                               退货
-                                            </a>
-                                        </div>
+
                                     </div>
                                 </li>
                             })}
