@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import {ajaxHoc} from "../../commons/ajax";
 
-import {Icon, Tabs, Collapse, Pagination, Row, Spin} from 'antd';
-import goodsImg from './goodsimg.jpg'
+import {Icon, Tabs, Collapse, Pagination, Row, Spin, Popconfirm, Button, Modal} from 'antd';
+import notify from './notify'
 
 import './style.less';
 
@@ -13,7 +13,7 @@ const Panel = Collapse.Panel;
 @ajaxHoc()
 export default class Personal extends Component {
     state = {
-        visible: false,
+        visible2: false,
         orders: [],
         pageSize: 5,
         pageNum: 1,
@@ -23,6 +23,21 @@ export default class Personal extends Component {
 
     componentDidMount() {
         this.handleSearch();
+    }
+
+    handleCancel2 = () => {
+        this.setState({visible2: false});
+        this.video.pause();
+    }
+    pushItem = (item) => {
+
+        if (item.commodityStatus === 'mp4') {
+            this.setState({commodityUrl: item.commodityUrl, visible2: true})
+
+        } else {
+            window.location.href=item.commodityUrl;
+            notify('success','文件已下载')
+        }
     }
 
     handleSearch = (args = {}) => {
@@ -88,13 +103,22 @@ export default class Personal extends Component {
                                             </dd>
                                         </dl>
                                         <div className="course-money">
-                                            <div style={{paddingRight:'200px'}}>
+                                            <div style={{paddingRight: '200px'}}>
 
                                             </div>
-                                            <div className="type-box" style={{paddingRight:'200px'}}>
+                                            <div className="type-box" style={{paddingRight: '200px'}}>
                                                 <p className="type-text">价格</p>
                                                 <div className="type-price" style={{color: '#f01414', fontSize: '18px'}}> ¥{item.commodityPrice}</div>
                                             </div>
+                                        </div>
+                                        <div className="course-action">
+
+
+                                            <Button type="primary" style={{marginTop: '30px', float: 'left', marginLeft: '45px'}} onClick={() => this.pushItem(item)}>
+                                                查看课程详情
+                                            </Button>
+
+
                                         </div>
 
                                     </div>
@@ -102,18 +126,34 @@ export default class Personal extends Component {
                             })}
                         </ul>
                     </div>
-                    <Row style={{width: '100%'}}>
-                        <Pagination
-                            current={pageNum}//当前的页数
-                            total={total}//接受的总数
-                            pageSize={pageSize}//一页的条数
-                            onChange={this.changePage}//改变页数
-                            showQuickJumper//快速跳转
-                            showTotal={total => `共 ${total}条`}//共多少条
-                            style={{textAlign: 'center', marginTop: '20px', display: 'block', width: '100%'}}
-                        />
-                    </Row>
+                    <Modal
+                        visible={this.state.visible2}
+                        onOk={this.handleOk}
+                        onCancel={this.handleCancel2}
+                        width='900px'
+                        title={null}
+                        wrapClassName={'web'}
+                        style={{zIndex: 9999999}}
+                    >
+
+                        <video width="800" src={this.state.commodityUrl} controls="controls" autoPlay="autoplay" ref={video => this.video = video}>
+                            您的浏览器不支持 video 标签。
+                        </video>
+
+                    </Modal>
+
                 </Spin>
+                <Row style={{width: '100%'}}>
+                    <Pagination
+                        current={pageNum}//当前的页数
+                        total={total}//接受的总数
+                        pageSize={pageSize}//一页的条数
+                        onChange={this.changePage}//改变页数
+                        showQuickJumper//快速跳转
+                        showTotal={total => `共 ${total}条`}//共多少条
+                        style={{textAlign: 'center', marginTop: '20px', display: 'block', width: '100%'}}
+                    />
+                </Row>
             </div>
         );
     }

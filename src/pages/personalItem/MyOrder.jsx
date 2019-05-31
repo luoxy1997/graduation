@@ -3,7 +3,7 @@ import {ajaxHoc} from "../../commons/ajax";
 
 import {Icon, Tabs, Collapse, Pagination, Row, Spin, Button, Popconfirm, Modal, Input, Form} from 'antd';
 import goodsImg from './goodsimg.jpg'
-import Vedio from '../classIntroduce/VideoItem'
+import notify from './notify'
 import './style.less';
 
 
@@ -82,6 +82,7 @@ export default class Personal extends Component {
         this.video.pause();
     }
     pushItem = (item) => {
+        this.setState({commodityUrl:null})
         this.props.ajax.get(`commodity/opera/queryCommodity?pageNum=1&pageSize=1&CommodityId=${item.commodityId}`)
             .then(res => {
                 if (res.data.list[0].commodityStatus === 'mp4') {
@@ -89,6 +90,7 @@ export default class Personal extends Component {
 
                 } else {
                     window.location.href=res && res.data.list[0].commodityUrl;
+                    notify('success','文件已下载')
                 }
             })
     }
@@ -217,7 +219,7 @@ export default class Personal extends Component {
                     style={{zIndex: 9999999}}
                 >
 
-                    <video width="900" src="https://zdj-save-file.oss-cn-beijing.aliyuncs.com/video/study/dressOne.txt" controls="controls" autoPlay="autoplay" ref={video => this.video = video}>
+                    <video width="800" src={this.state.commodityUrl} controls="controls" autoPlay="autoplay" ref={video => this.video = video}>
                         您的浏览器不支持 video 标签。
                     </video>
 
