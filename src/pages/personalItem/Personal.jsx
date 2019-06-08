@@ -6,7 +6,7 @@ import MyOrder from './MyOrder';
 import defaultBannar from './defaultbannar.jpg';
 import girl from './girl.png';
 import UploadItem from './Upload.jsx'
-
+import Personal3 from './Personal3.jsx'
 import PersonalItem from './PersonalItem';
 import MyCourse from './MyCourse';
 
@@ -112,6 +112,10 @@ export default class Personal extends Component {
                     <TabPane tab={<span><Icon type="book"/>我的课程</span>} key="8">
                         <MyCourse/>
                     </TabPane>
+                    <TabPane tab={<span><Icon type="book"/>会员借阅</span>} key="80">
+                        <Personal3/>
+                    </TabPane>
+
                 </Tabs>
                 <Modal
                     title="修改头像"
