@@ -125,7 +125,7 @@ export default class Header extends Component {
                 notify('error', '两次密码不一致！');
             } else {
                 this.props.form.validateFieldsAndScroll(fields, (err, value) => {
-                    this.props.ajax.post('/common/login/updateUser', {userPassword: userPassword, uuid})
+                    this.props.ajax.post('/common/login/updateUser', {userPassword: userPassword, uuid:this.state.uuid})
                         .then(res => {
                             const current = this.state.current + 1;
                             this.setState({current});
