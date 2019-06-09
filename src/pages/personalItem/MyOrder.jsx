@@ -161,7 +161,7 @@ export default class Personal extends Component {
                                                                 退货成功
                                                             </Button> :
                                                             (item.orderState === 4 ?
-                                                                <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
+                                                                <Button type="danger" ghost style={{marginTop: '10px',marginLeft: '50px', float: 'left'}}>
                                                                     退货失败
                                                                 </Button> : <Button type="danger" ghost style={{marginTop: '30px', float: 'left', marginLeft: '50px'}}>
                                                                     退货待审核中
@@ -170,7 +170,7 @@ export default class Personal extends Component {
                                                     )
 
                                                 }
-                                                {item.orderState === 1 || null ?
+                                                {item.orderState === 1 ||item.orderState === 4 ?
 
                                                     <Button type="primary" style={{marginTop: '30px', float: 'left', marginLeft: '45px'}} onClick={() => this.pushItem(item)}>
                                                         查看课程详情
